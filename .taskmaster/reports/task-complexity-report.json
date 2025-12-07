@@ -1,0 +1,309 @@
+{
+	"meta": {
+		"generatedAt": "2025-12-06T15:36:47.438Z",
+		"tasksAnalyzed": 37,
+		"totalTasks": 37,
+		"analysisCount": 37,
+		"thresholdScore": 5,
+		"projectName": "Backend",
+		"usedResearch": true
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 1,
+			"taskTitle": "Configuración inicial del proyecto Laravel 11",
+			"complexityScore": 3,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Dividir la configuración inicial en subtareas: (1) Instalación de Laravel 11 y verificación de PHP 8.2, (2) Configuración de base de datos MySQL 8.0 y archivo .env, (3) Configuración de Laravel Pint con PSR-12 y herramientas de desarrollo, (4) Inicialización de Git y commit inicial",
+			"reasoning": "Complejidad baja-media. Es una tarea estándar de configuración de proyecto Laravel, pero requiere atención a versiones específicas (Laravel 11, PHP 8.2, MySQL 8.0). Incluye múltiples pasos secuenciales que deben completarse correctamente para que el resto del proyecto funcione. El riesgo principal es la compatibilidad de versiones."
+		},
+		{
+			"taskId": 2,
+			"taskTitle": "Instalación de dependencias del proyecto",
+			"complexityScore": 2,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Dividir instalación en: (1) Instalación de dependencias de producción (league/csv, laravel-auditing, laravel-query-builder), (2) Instalación de dependencias de desarrollo (pint, phpunit, faker), (3) Verificación de compatibilidad y resolución de conflictos de versiones",
+			"reasoning": "Complejidad baja. Instalación de paquetes Composer es directa, pero requiere verificar compatibilidad con Laravel 11 y PHP 8.2. Los paquetes seleccionados son bien establecidos y mantenidos. El principal desafío es asegurar versiones compatibles."
+		},
+		{
+			"taskId": 3,
+			"taskTitle": "Diseño y creación de migración para tabla 'provincias'",
+			"complexityScore": 2,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "Complejidad baja. Es una migración simple con 4 campos (id, nombre, codigo, timestamps). No tiene relaciones complejas ni constraints avanzados. La estructura es directa: una tabla básica con índices simples. No requiere subdivisión."
+		},
+		{
+			"taskId": 4,
+			"taskTitle": "Diseño y creación de migración para tabla 'listas'",
+			"complexityScore": 3,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "Complejidad baja-media. Incluye foreign key a provincias, campo ENUM para cargo, y constraint UNIQUE compuesto (nombre+provincia+cargo). Requiere comprensión de relaciones y validaciones a nivel de BD. Los índices compuestos añaden complejidad moderada. No requiere subdivisión por ser manejable en una sola migración."
+		},
+		{
+			"taskId": 5,
+			"taskTitle": "Diseño y creación de migración para tabla 'candidatos'",
+			"complexityScore": 4,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "Complejidad media. Tabla con múltiples foreign keys (lista_id, provincia_id), campo ENUM, y constraint UNIQUE compuesto (lista_id+orden). El campo 'orden' requiere lógica de validación especial. Las políticas de cascade vs restrict en foreign keys requieren análisis cuidadoso. Aún así, es manejable como una sola tarea."
+		},
+		{
+			"taskId": 6,
+			"taskTitle": "Diseño y creación de migración para tabla 'mesas'",
+			"complexityScore": 3,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "Complejidad baja-media. Tabla con foreign key a provincias, campos opcionales (circuito, establecimiento), y validación de electores > 0. El constraint UNIQUE en id_mesa es importante a nivel nacional. Los índices compuestos requieren consideración para optimizar búsquedas. No requiere subdivisión."
+		},
+		{
+			"taskId": 7,
+			"taskTitle": "Diseño y creación de migración para tabla 'telegramas'",
+			"complexityScore": 5,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "Complejidad media. Tabla central con múltiples foreign keys, 5 campos numéricos de votos que requieren validación >= 0, y constraint UNIQUE compuesto (mesa_id+lista_id). Las políticas de cascade delete vs restrict son críticas para integridad de datos. Los índices compuestos son esenciales para performance. Aunque compleja, es manejable como una migración única."
+		},
+		{
+			"taskId": 8,
+			"taskTitle": "Diseño y creación de migración para tabla 'auditoria'",
+			"complexityScore": 3,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "Complejidad baja-media. Tabla de auditoría con campos JSON (datos_anteriores, datos_nuevos), ENUM para acción, y múltiples índices. Requiere comprensión de tipos JSON en MySQL y estrategia de índices para consultas eficientes. Solo usa created_at (sin updated_at). No requiere subdivisión."
+		},
+		{
+			"taskId": 9,
+			"taskTitle": "Ejecución de migraciones y verificación de schema",
+			"complexityScore": 4,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Subdividir en: (1) Ejecución inicial de migraciones y verificación de tablas creadas, (2) Verificación de foreign keys y constraints en MySQL, (3) Verificación de índices y optimizaciones, (4) Pruebas de rollback y re-migración, (5) Generación de diagrama ER y documentación del schema",
+			"reasoning": "Complejidad media. No es solo ejecutar 'migrate' - requiere verificación exhaustiva de schema, foreign keys, índices, y constraints. Las pruebas de rollback son críticas para asegurar reversibilidad. La generación del diagrama ER añade trabajo adicional. Es un punto de validación crítico para todo el proyecto de BD."
+		},
+		{
+			"taskId": 10,
+			"taskTitle": "Creación de modelo Eloquent Provincia con relaciones",
+			"complexityScore": 2,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "Complejidad baja. Modelo simple con 3 relaciones hasMany (listas, candidatos, mesas). Configuración básica de fillable, casts y timestamps. No requiere lógica compleja, accesorios especiales ni validaciones a nivel de modelo. Es un patrón estándar de Eloquent."
+		},
+		{
+			"taskId": 11,
+			"taskTitle": "Creación de modelo Eloquent Lista con relaciones y constantes de cargo",
+			"complexityScore": 3,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "Complejidad baja-media. Modelo con 1 belongsTo (provincia) y 2 hasMany (candidatos ordenados, telegramas). Requiere definir constantes para ENUM de cargo. El ordenamiento automático en relación candidatos() añade complejidad moderada. No requiere subdivisión."
+		},
+		{
+			"taskId": 12,
+			"taskTitle": "Creación de modelo Eloquent Candidato con relaciones y accesorios",
+			"complexityScore": 3,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "Complejidad baja-media. Modelo con 2 belongsTo (lista, provincia), constantes de cargo, y casts para orden. Puede incluir accesorios para formateo de nombre. La validación de orden >= 1 se maneja en Form Request, no en modelo. No requiere subdivisión."
+		},
+		{
+			"taskId": 13,
+			"taskTitle": "Creación de modelo Eloquent Mesa con relaciones y validaciones",
+			"complexityScore": 4,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "Complejidad media. Modelo con 2 relaciones (belongsTo provincia, hasMany telegramas) más un método helper totalVotosCargados() que requiere cálculos agregados con sum(). Este método implica queries complejas sumando múltiples campos de telegramas. Aún manejable como tarea única."
+		},
+		{
+			"taskId": 14,
+			"taskTitle": "Creación de modelo Eloquent Telegrama con relaciones",
+			"complexityScore": 4,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "Complejidad media. Modelo central con 2 belongsTo (mesa, lista), 5 campos numéricos con casts, y método helper totalVotos(). Es el modelo más crítico del sistema con lógica de negocio importante. Las validaciones complejas se manejan en Service Layer, no en modelo. No requiere subdivisión."
+		},
+		{
+			"taskId": 15,
+			"taskTitle": "Creación de modelo Eloquent Auditoria",
+			"complexityScore": 3,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "Complejidad baja-media. Modelo con configuración especial: timestamps = false (solo created_at), casts de JSON a array, constantes de acciones, y método estático registrar() para crear auditorías. Los casts de JSON añaden complejidad moderada. No requiere subdivisión."
+		},
+		{
+			"taskId": 16,
+			"taskTitle": "Configuración de Laravel Auditing en modelos auditables",
+			"complexityScore": 5,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Dividir en: (1) Publicación de configuración y ajuste de config/audit.php, (2) Creación de migración para tabla 'audits' y ejecución, (3) Implementación de trait Auditable en modelos críticos (Telegrama, Candidato, Lista), (4) Configuración de usuario en middleware y pruebas de auditoría",
+			"reasoning": "Complejidad media. Requiere integración con paquete externo (owen-it/laravel-auditing), publicación de configuración, creación de migración adicional, y aplicación de trait en múltiples modelos. La configuración de usuario requiere middleware o Form Request. Las pruebas de auditoría son críticas para validar funcionamiento."
+		},
+		{
+			"taskId": 17,
+			"taskTitle": "Creación de Form Request para validación de Provincia",
+			"complexityScore": 3,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "Complejidad baja-media. Dos Form Requests (Store y Update) con validaciones estándar: required, unique, max length. UpdateRequest requiere lógica para excluir registro actual en validación unique. Mensajes personalizados añaden claridad. Patrón estándar de Laravel. No requiere subdivisión."
+		},
+		{
+			"taskId": 18,
+			"taskTitle": "Creación de Form Request para validación de Lista",
+			"complexityScore": 4,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "Complejidad media. Form Requests con validación ENUM usando Rule::in(), exists para foreign key, y validación UNIQUE compuesta (nombre+provincia_id+cargo). Campo nullable (alianza) requiere manejo especial. UpdateRequest con validación parcial. Más complejo que Provincia pero manejable."
+		},
+		{
+			"taskId": 19,
+			"taskTitle": "Creación de Form Request para validación de Candidato",
+			"complexityScore": 5,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "Complejidad media. Form Requests con validación UNIQUE condicional (orden único por lista_id usando Rule::unique()->where()), validación de orden >= 1, y validación personalizada para verificar consistencia entre cargo de candidato y cargo de lista. Esta validación cruzada requiere lógica adicional. Aún manejable como tarea única."
+		},
+		{
+			"taskId": 20,
+			"taskTitle": "Creación de Form Request para validación de Mesa",
+			"complexityScore": 3,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "Complejidad baja-media. Form Requests con validaciones estándar: unique para id_mesa, exists para provincia_id, min:1 para electores, y campos nullable. Posible validación personalizada para formato de id_mesa si hay patrón estándar. No requiere subdivisión."
+		},
+		{
+			"taskId": 21,
+			"taskTitle": "Creación de TelegramaValidationService con reglas de negocio",
+			"complexityScore": 7,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Dividir en: (1) Implementación de método validarSumaVotosNoExcedeElectores con queries agregadas y lógica de exclusión, (2) Implementación de método validarVotosNoNegativos y otras validaciones básicas, (3) Registro del servicio en Service Provider y creación de tests unitarios completos",
+			"reasoning": "Complejidad media-alta. Service Layer con lógica de negocio compleja: calcular suma de votos existentes excluyendo telegrama actual, sumar votos nuevo telegrama, comparar con electores de mesa, y lanzar excepciones descriptivas. Requiere queries con DB::raw y joins. La lógica de exclusión al actualizar añade complejidad. Es crítico para integridad de datos."
+		},
+		{
+			"taskId": 22,
+			"taskTitle": "Creación de Form Request para validación de Telegrama",
+			"complexityScore": 6,
+			"recommendedSubtasks": 0,
+			"expansionPrompt": "",
+			"reasoning": "Complejidad media-alta. Form Requests que integran TelegramaValidationService en método withValidator(). Incluye validación UNIQUE compuesta (mesa_id+lista_id), validación de todos los campos de votos >= 0, y validación de negocio compleja (suma <= electores). UpdateRequest debe pasar ID actual al servicio. Es compleja pero cohesiva como una sola tarea."
+		},
+		{
+			"taskId": 23,
+			"taskTitle": "Implementación de Controller y rutas CRUD para Provincias",
+			"complexityScore": 4,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Subdividir en: (1) Creación de ProvinciaController con métodos index y show, (2) Implementación de métodos store y update con Form Requests, (3) Implementación de método destroy con manejo de foreign key constraints, (4) Definición de rutas API y pruebas de endpoints",
+			"reasoning": "Complejidad media. Controller RESTful completo con 5 métodos, paginación, búsqueda con query params, uso de Form Requests, y manejo de excepciones de foreign key al eliminar. La búsqueda con LIKE añade complejidad moderada. Definición de rutas API bajo prefijo v1. Es un controller robusto que amerita subdivisión."
+		},
+		{
+			"taskId": 24,
+			"taskTitle": "Implementación de Controller y rutas CRUD para Listas",
+			"complexityScore": 5,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Subdividir en: (1) Creación de ListaController con métodos index (con filtros por provincia y cargo) y show con eager loading, (2) Implementación de store y update con validaciones, (3) Implementación de método nested listsByProvincia, (4) Definición de rutas API (resource + nested) y pruebas",
+			"reasoning": "Complejidad media. Controller con eager loading (provincia, candidatos), filtros múltiples (provincia_id, cargo), endpoint nested (provincias/{id}/listas), y manejo de restricciones de foreign key. Más complejo que Provincia por filtros y relaciones. Requiere subdivisión."
+		},
+		{
+			"taskId": 25,
+			"taskTitle": "Implementación de Controller y rutas CRUD para Candidatos",
+			"complexityScore": 5,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Subdividir en: (1) Implementación de métodos index con eager loading y múltiples filtros, ordenamiento por lista_id y orden, (2) Implementación de show, store y update, (3) Manejo especial de actualización de orden con validación de unicidad, (4) Consideración de endpoint para reordenar candidatos en lote y pruebas",
+			"reasoning": "Complejidad media. Controller con eager loading complejo (lista.provincia), ordenamiento múltiple (lista_id, orden), filtros por lista/provincia/cargo, y lógica especial para actualizar orden. El posible endpoint de reordenamiento en lote añade complejidad. Requiere subdivisión."
+		},
+		{
+			"taskId": 26,
+			"taskTitle": "Implementación de Controller y rutas CRUD para Mesas",
+			"complexityScore": 5,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Subdividir en: (1) Implementación de index con filtros por provincia, circuito e id_mesa, (2) Implementación de show con eager loading de telegramas.lista, (3) Implementación de store, update y destroy, (4) Endpoint nested mesasByProvincia y contador de telegramas cargados",
+			"reasoning": "Complejidad media. Controller con búsqueda por id_mesa (LIKE), filtros múltiples, eager loading de relaciones anidadas (telegramas.lista), endpoint nested, y posible contador de telegramas. Más complejo que Provincia por filtros y relaciones. Requiere subdivisión."
+		},
+		{
+			"taskId": 27,
+			"taskTitle": "Implementación de TelegramaController con validación compleja",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Subdividir en: (1) Creación de TelegramaController con inyección de TelegramaValidationService, (2) Implementación de método store con transacción DB y manejo de excepciones, (3) Implementación de método update con revalidación, (4) Implementación de index, show y destroy, (5) Endpoint nested telegramasByMesa y verificación de auditoría automática",
+			"reasoning": "Complejidad media-alta. Controller que integra TelegramaValidationService, usa transacciones DB (beginTransaction, commit, rollback), manejo de excepciones personalizadas, eager loading, endpoint nested, y auditoría automática vía trait. Es el controller más complejo y crítico del sistema. Requiere subdivisión."
+		},
+		{
+			"taskId": 28,
+			"taskTitle": "Creación de ResultadoCalculationService para agregación de datos",
+			"complexityScore": 8,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Subdividir en: (1) Implementación de método resultadosPorProvincia con agregación, joins y cálculo de porcentajes, (2) Implementación de método resumenNacional agregando todas las provincias, (3) Implementación de método resultadosPorCandidato, (4) Implementación de método resultadosPorLista, (5) Optimización de queries con groupBy, joins eficientes y consideración de caché",
+			"reasoning": "Complejidad alta. Service Layer con lógica compleja de agregación: joins entre tablas, sumas condicionales según cargo, cálculo de porcentajes, ordenamiento por votos, y agregación nacional. Requiere queries SQL optimizadas con groupBy y joins. El método resumenNacional debe agregar datos de 24 provincias. Considerar caché añade complejidad. Requiere subdivisión."
+		},
+		{
+			"taskId": 29,
+			"taskTitle": "Implementación de ResultadoController para consultas de resultados",
+			"complexityScore": 5,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Subdividir en: (1) Creación de ResultadoController con inyección de ResultadoCalculationService, (2) Implementación de endpoints provincial y nacional con validación de cargo, (3) Implementación de endpoints porCandidato y porLista, (4) Definición de rutas bajo prefijo 'resultados' y pruebas de endpoints",
+			"reasoning": "Complejidad media. Controller que delega lógica compleja a ResultadoCalculationService, con 4 endpoints (provincial, nacional, porCandidato, porLista), validación de parámetro cargo, y rutas agrupadas bajo prefijo. Más simple que TelegramaController pero con múltiples endpoints. Requiere subdivisión."
+		},
+		{
+			"taskId": 30,
+			"taskTitle": "Creación de ImportService para procesamiento de archivos CSV",
+			"complexityScore": 9,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Subdividir en: (1) Implementación de método importarProvincias con league/csv, manejo de transacciones y reporte de errores, (2) Implementación de métodos importarListas y importarCandidatos, (3) Implementación de método importarMesas, (4) Implementación de método importarTelegramas con validación compleja de suma de votos, (5) Validación de estructura CSV y encoding UTF-8, (6) Implementación de chunks para archivos grandes y logging de importación",
+			"reasoning": "Complejidad alta. Service complejo que procesa 5 tipos de CSV diferentes usando league/csv, con transacciones DB, manejo de errores por línea, validaciones de modelo, encoding UTF-8, chunks para archivos grandes, y logging. El método importarTelegramas debe integrar TelegramaValidationService. Es uno de los servicios más complejos. Requiere subdivisión."
+		},
+		{
+			"taskId": 31,
+			"taskTitle": "Implementación de ImportExportController para endpoints de importación",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Subdividir en: (1) Creación de ImportExportController con inyección de ImportService, (2) Implementación de endpoint importarProvincias con validación de archivo y storage, (3) Implementación de endpoints importarListas, importarCandidatos e importarMesas, (4) Implementación de endpoint importarTelegramas con validación compleja, (5) Definición de rutas bajo prefijo 'import', manejo de archivos temporales y códigos HTTP apropiados (200, 207, 422, 500)",
+			"reasoning": "Complejidad media-alta. Controller con 5 endpoints de importación, validación de archivos (MIME, tamaño), storage temporal, limpieza de archivos, manejo de múltiples códigos HTTP (207 Multi-Status para errores parciales), y delegación a ImportService. Requiere subdivisión por complejidad de manejo de archivos."
+		},
+		{
+			"taskId": 32,
+			"taskTitle": "Creación de ExportService para generación de archivos CSV",
+			"complexityScore": 6,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Subdividir en: (1) Implementación de método exportarResultadosProvinciales usando league/csv con headers, datos y totales, (2) Implementación de método exportarResumenNacional con agregación de 24 provincias, (3) Configuración de encoding UTF-8 con BOM para Excel y generación de nombres únicos con timestamp, (4) Implementación de limpieza periódica de archivos antiguos",
+			"reasoning": "Complejidad media-alta. Service que genera CSVs usando league/csv, integra ResultadoCalculationService, configura encoding UTF-8 con BOM para compatibilidad con Excel, genera nombres únicos con timestamp, y requiere limpieza de archivos. Dos métodos principales con lógica de formateo y totales. Requiere subdivisión."
+		},
+		{
+			"taskId": 33,
+			"taskTitle": "Implementación de endpoints de exportación en ImportExportController",
+			"complexityScore": 4,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Subdividir en: (1) Extensión de ImportExportController con inyección de ExportService, (2) Implementación de endpoints exportarResultadosProvinciales y exportarResumenNacional con validación de cargo, (3) Configuración de response()->download() con headers correctos, nombres dinámicos y deleteFileAfterSend, definición de rutas bajo prefijo 'export'",
+			"reasoning": "Complejidad media. Extensión de controller existente con 2 endpoints de exportación, validación de parámetro cargo, configuración de BinaryFileResponse con Content-Type correcto, nombres dinámicos con timestamp, y eliminación automática de archivos. Requiere asegurar permisos en directorio exports/. Requiere subdivisión moderada."
+		},
+		{
+			"taskId": 34,
+			"taskTitle": "Creación de Seeders y Factories para datos de prueba",
+			"complexityScore": 7,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Subdividir en: (1) Creación de factories para Provincia, Lista, Candidato, Mesa y Telegrama con definiciones realistas, (2) Implementación de DatabaseSeeder con 24 provincias argentinas reales, (3) Generación de 3 listas por provincia para cada cargo (DIPUTADOS, SENADORES), (4) Generación de 5 candidatos por lista con orden secuencial y 8 mesas por provincia, (5) Generación de telegramas con validación de suma <= electores y verificación de consistencia de datos",
+			"reasoning": "Complejidad media-alta. Requiere crear 5 factories con relaciones complejas, seeder con datos reales de 24 provincias argentinas, lógica para generar 3 listas × 2 cargos × 24 provincias = 144 listas, 5 candidatos × 144 listas = 720 candidatos, 8 mesas × 24 provincias = 192 mesas, y telegramas validando que suma no exceda electores. Datos deben ser realistas y consistentes. Requiere subdivisión."
+		},
+		{
+			"taskId": 35,
+			"taskTitle": "Creación de suite de tests completa con TDD",
+			"complexityScore": 9,
+			"recommendedSubtasks": 8,
+			"expansionPrompt": "Subdividir en: (1) Configuración de PHPUnit con coverage y exclusiones, (2) Creación de tests unitarios para TelegramaValidationService y ResultadoCalculationService, (3) Creación de tests unitarios para ImportService y ExportService, (4) Creación de tests de feature para ProvinciaController, ListaController y CandidatoController, (5) Creación de tests de feature para MesaController y TelegramaController, (6) Creación de tests de feature para ResultadoController e ImportExportController, (7) Implementación de casos críticos mencionados en PRD sección 8.3, (8) Configuración de CI/CD (GitHub Actions) para ejecutar tests automáticamente y verificación de cobertura ≥80%",
+			"reasoning": "Complejidad muy alta. Suite completa de testing con cobertura ≥80% requiere: configuración de PHPUnit con coverage, 4 tests unitarios para servicios complejos, 7 tests de feature para controllers (cada uno con múltiples casos de prueba), uso de RefreshDatabase trait, tests independientes ejecutables en cualquier orden, implementación de casos críticos del PRD, configuración de CI/CD, y generación de reportes HTML de coverage. Es la tarea de testing más grande y crítica. Requiere subdivisión extensa."
+		},
+		{
+			"taskId": 36,
+			"taskTitle": "Configuración de CORS y documentación de API",
+			"complexityScore": 5,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Subdividir en: (1) Configuración de CORS en config/cors.php para permitir orígenes del frontend, (2) Aplicación de formateo PSR-12 con vendor/bin/pint a todo el código, (3) Creación de README.md completo con requisitos, instalación, .env, migraciones y tests, (4) Documentación de todos los endpoints API con ejemplos request/response y formatos CSV, (5) Creación de API.md con especificación OpenAPI/Swagger, CONTRIBUTING.md y badges de build/coverage",
+			"reasoning": "Complejidad media. Requiere configuración de CORS (relativamente simple), aplicación de PSR-12 a todo el proyecto, creación de documentación completa (README.md extenso con múltiples secciones), documentación de 20+ endpoints API con ejemplos, posible especificación OpenAPI/Swagger, y archivos adicionales (CONTRIBUTING.md, badges). La documentación exhaustiva requiere tiempo significativo. Requiere subdivisión."
+		},
+		{
+			"taskId": 37,
+			"taskTitle": "Optimización de queries y preparación para demo",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Subdividir en: (1) Identificación y resolución de queries N+1 usando Laravel Debugbar/Telescope, implementación de eager loading, (2) Revisión y adición de índices de BD para campos en WHERE/ORDER BY/JOIN, (3) Implementación de caching para resultados nacionales con Cache::remember(), (4) Generación de dataset de demo completo (2 provincias, listas, candidatos, mesas, telegramas) y script demo:setup, (5) Preparación de colección Postman/Insomnia con todos los endpoints y ejecución de php artisan optimize, (6) Validación de criterios de aceptación del PRD, revisión de logs y preparación de presentación",
+			"reasoning": "Complejidad alta. Tarea final de optimización y preparación que requiere: instalación y uso de Debugbar/Telescope para profiling, identificación de N+1 en múltiples controllers, optimización de índices de BD, implementación de caché estratégico, generación de dataset demo realista, creación de comando Artisan personalizado (demo:setup), colección Postman completa con 20+ endpoints, análisis de performance, revisión de todos los criterios de aceptación del PRD, y preparación de presentación. Es una tarea multifacética y crítica. Requiere subdivisión."
+		}
+	]
+}
