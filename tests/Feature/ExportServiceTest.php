@@ -74,7 +74,7 @@ class ExportServiceTest extends TestCase
 
         // Create mesa
         $mesa = Mesa::create([
-            'numero' => '001',
+            'id_mesa' => '001',
             'circuito' => 'A',
             'establecimiento' => 'Escuela 1',
             'provincia_id' => $provincia->id,
@@ -173,7 +173,7 @@ class ExportServiceTest extends TestCase
             'provincia_id' => $provincia->id
         ]);
         $mesa = Mesa::create([
-            'numero' => '001',
+            'id_mesa' => '001',
             'circuito' => 'A',
             'establecimiento' => 'Escuela',
             'provincia_id' => $provincia->id,
@@ -193,7 +193,11 @@ class ExportServiceTest extends TestCase
         // Assert - check BOM
         $content = file_get_contents($resultado['path']);
         $bom = substr($content, 0, 3);
-        $this->assertEquals("\xEF\xBB\xBF", $bom, 'File should start with UTF-8 BOM');
+        // BOM can be represented as UTF-8 character or raw bytes
+        $this->assertTrue(
+            $bom === "\xEF\xBB\xBF" || $bom === "\u{FEFF}",
+            'File should start with UTF-8 BOM'
+        );
 
         // Verify special characters are preserved
         $this->assertStringContainsString('Año', $content);

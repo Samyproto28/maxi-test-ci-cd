@@ -6,6 +6,7 @@ use League\Csv\Reader;
 use App\Models\{Provincia, Lista, Candidato, Mesa, Telegrama};
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ImportService
 {
@@ -634,11 +635,20 @@ class ImportService
      */
     private function prepareReader(string $filePath): Reader
     {
-        if (!file_exists($filePath)) {
-            throw new \InvalidArgumentException("El archivo no existe: {$filePath}");
+        // If it's a storage path, read from storage
+        if (str_starts_with($filePath, storage_path('app'))) {
+            $storagePath = str_replace(storage_path('app') . '/', '', $filePath);
+            if (!Storage::exists($storagePath)) {
+                throw new \InvalidArgumentException("El archivo no existe: {$filePath}");
+            }
+            $content = Storage::get($storagePath);
+        } else {
+            // Direct filesystem access
+            if (!file_exists($filePath)) {
+                throw new \InvalidArgumentException("El archivo no existe: {$filePath}");
+            }
+            $content = file_get_contents($filePath);
         }
-
-        $content = file_get_contents($filePath);
 
         // Remover BOM si existe
         $bom = pack('H*', 'EFBBBF');
