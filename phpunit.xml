@@ -16,10 +16,23 @@
         <include>
             <directory>app</directory>
         </include>
+        <exclude>
+            <directory>app/Providers</directory>
+            <file>app/Console/Kernel.php</file>
+        </exclude>
     </source>
+    <logging>
+        <log type="coverage-html" target="coverage-html"/>
+        <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
+        <log type="coverage-clover" target="coverage-clover.xml"/>
+    </logging>
+    <php>
+        <env name="XDEBUG_MODE" value="coverage"/>
+    </php>
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
+        <env name="AUDIT_CONSOLE_ENABLED" value="true"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>
         <!-- <env name="DB_CONNECTION" value="sqlite"/> -->

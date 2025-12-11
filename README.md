@@ -61,6 +61,121 @@ php artisan db:table telegramas
 php artisan db:table auditoria
 ```
 
+## Testing
+
+El sistema cuenta con una suite completa de tests que incluye **401 tests** cubriendo:
+
+### Tipos de Tests
+
+**Tests Unitarios (Unit Tests)**
+- **Modelos**: Provincia, Lista, Candidato, Mesa, Telegrama, Auditoria (90 tests)
+- **Servicios**: TelegramaValidationService, ResultadoCalculationService, ImportService, ExportService (67 tests)
+- **Requests**: ProvinciaRequest, ListaRequest, CandidatoRequest, MesaRequest, TelegramaRequest (99 tests)
+
+**Tests de Feature (Feature Tests)**
+- **Controladores**: ProvinciaController, ListaController, CandidatoController, MesaController (85 tests)
+- **Import/Export**: ImportExportController (20 tests)
+- **ResultadoController**: API de resultados electorales (10 tests)
+
+### Comandos de Testing
+
+```bash
+# Ejecutar todos los tests
+composer test
+# o
+php artisan test
+
+# Ejecutar solo tests unitarios
+php artisan test --testsuite=Unit
+
+# Ejecutar solo tests de feature
+php artisan test --testsuite=Feature
+
+# Ejecutar tests con cobertura (requiere PCOV o Xdebug)
+composer test:coverage
+
+# Ver cobertura en texto
+composer test:coverage-text
+
+# Generar reporte HTML de cobertura
+composer test:coverage
+
+# Generar reporte Clover para CI
+composer test:coverage-clover
+```
+
+### Configuración de Coverage
+
+El proyecto utiliza **PCOV** para medir cobertura de código:
+
+```bash
+# Instalar PCOV (Ubuntu/Debian)
+sudo pecl install pcov
+
+# Habilitar PCOV en php.ini
+echo "extension=pcov.so" >> /usr/local/etc/php/conf.d/pcov.ini
+```
+
+### Estructura de Tests
+
+```
+tests/
+├── Feature/
+│   ├── Controllers/           # Tests de controladores API
+│   │   ├── ProvinciaControllerTest.php
+│   │   ├── ListaControllerTest.php
+│   │   ├── CandidatoControllerTest.php
+│   │   └── MesaControllerTest.php
+│   ├── ImportExportControllerTest.php
+│   ├── ResultadoControllerTest.php
+│   └── AuditingTest.php
+├── Unit/
+│   ├── Models/               # Tests de modelos Eloquent
+│   │   ├── ProvinciaTest.php
+│   │   ├── ListaTest.php
+│   │   ├── CandidatoTest.php
+│   │   ├── MesaTest.php
+│   │   ├── TelegramaTest.php
+│   │   └── AuditoriaTest.php
+│   ├── Requests/             # Tests de validación de requests
+│   │   ├── ProvinciaRequestTest.php
+│   │   ├── ListaRequestTest.php
+│   │   ├── CandidatoRequestTest.php
+│   │   ├── MesaRequestTest.php
+│   │   └── TelegramaRequestTest.php
+│   └── Services/             # Tests de servicios y lógica de negocio
+│       ├── TelegramaValidationServiceTest.php
+│       ├── ResultadoCalculationServiceTest.php
+│       ├── ImportServiceTest.php
+│       └── ExportServiceTest.php
+```
+
+### CI/CD
+
+Los tests se ejecutan automáticamente en GitHub Actions en cada push y pull request:
+
+- **PHP 8.2** con extensiones requeridas
+- **MySQL 8.0** para tests de integración
+- **PCOV** para análisis de cobertura
+- **Coverage threshold**: 80%
+- **Artifact**: Reporte HTML de cobertura
+
+### Buenas Prácticas de Testing
+
+1. **RefreshDatabase**: Todos los tests usan `RefreshDatabase` para aislamiento
+2. **Factories**: Se utilizan factories de Laravel para datos de prueba
+3. **Assertions específicas**:
+   - `assertDatabaseHas()` para verificar persistencia
+   - `assertJsonStructure()` para validar respuestas API
+   - `assertRelation()` para verificar relaciones Eloquent
+4. **Edge cases**: Tests incluyen casos límite y validaciones de error
+
+### Coverage Badge
+
+[![Coverage](https://img.shields.io/badge/Coverage-View%20Report-brightgreen)](https://github.com/your-org/your-repo/actions)
+
+El badge se actualiza automáticamente desde GitHub Actions con el porcentaje de cobertura.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

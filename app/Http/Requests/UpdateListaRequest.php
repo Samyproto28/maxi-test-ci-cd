@@ -24,6 +24,10 @@ class UpdateListaRequest extends FormRequest
     public function rules(): array
     {
         $listaId = $this->route('lista');
+        $lista = Lista::find($listaId);
+
+        $provinciaId = $lista?->provincia_id;
+        $cargo = $lista?->cargo;
 
         return [
             'nombre' => [
@@ -33,8 +37,8 @@ class UpdateListaRequest extends FormRequest
                 'max:100',
                 Rule::unique('listas')
                     ->ignore($listaId)
-                    ->where('provincia_id', $this->provincia_id ?? $this->route('lista')->provincia_id)
-                    ->where('cargo', $this->cargo ?? $this->route('lista')->cargo)
+                    ->where('provincia_id', $this->input('provincia_id', $provinciaId))
+                    ->where('cargo', $this->input('cargo', $cargo))
             ],
             'alianza' => 'sometimes|nullable|string|max:100',
             'provincia_id' => 'sometimes|required|exists:provincias,id',

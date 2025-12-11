@@ -6,6 +6,7 @@ use App\Models\Provincia;
 use App\Models\Lista;
 use App\Models\Mesa;
 use App\Models\Telegrama;
+use App\Models\Candidato;
 use App\Services\ResultadoCalculationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -321,7 +322,6 @@ class ResultadoCalculationServiceTest extends TestCase
         $this->assertCount(1, $resultadoSenadores['listas']);
         $this->assertEquals($listaSenadores->id, $resultadoSenadores['listas'][0]['id']);
     }
-}
 
     /** @test */
     public function test_resumen_nacional_agrega_todas_provincias()
@@ -333,18 +333,21 @@ class ResultadoCalculationServiceTest extends TestCase
 
         $lista1 = Lista::factory()->create([
             'nombre' => 'Lista Nacional A',
+            'alianza' => 'Unión Nacional',
             'provincia_id' => $provincia1->id,
             'cargo' => Lista::CARGO_DIPUTADOS
         ]);
 
         $lista2 = Lista::factory()->create([
             'nombre' => 'Lista Nacional A',
+            'alianza' => 'Unión Nacional',
             'provincia_id' => $provincia2->id,
             'cargo' => Lista::CARGO_DIPUTADOS
         ]);
 
         $lista3 = Lista::factory()->create([
             'nombre' => 'Lista Nacional A',
+            'alianza' => 'Unión Nacional',
             'provincia_id' => $provincia3->id,
             'cargo' => Lista::CARGO_DIPUTADOS
         ]);
@@ -529,5 +532,327 @@ class ResultadoCalculationServiceTest extends TestCase
         $this->assertEquals(Lista::CARGO_DIPUTADOS, $resultado['cargo']);
         $this->assertEquals(0, $resultado['total_votos_validos']);
         $this->assertEmpty($resultado['listas']);
+    }
+
+    /** @test */
+    public function test_resultados_por_candidato_incluye_votos_de_su_lista()
+    {
+        // Arrange
+        $provincia = Provincia::factory()->create();
+
+        $lista = Lista::factory()->create([
+            'nombre' => 'Lista Completa',
+            'provincia_id' => $provincia->id,
+            'cargo' => Lista::CARGO_DIPUTADOS
+        ]);
+
+        $candidato = Candidato::create([
+            'nombre' => 'Juan Pérez',
+            'lista_id' => $lista->id,
+            'provincia_id' => $provincia->id,
+            'cargo' => Lista::CARGO_DIPUTADOS,
+            'orden' => 1
+        ]);
+
+        // Create telegramas for the lista
+        $mesa1 = Mesa::factory()->create(['provincia_id' => $provincia->id]);
+        Telegrama::factory()->create([
+            'mesa_id' => $mesa1->id,
+            'lista_id' => $lista->id,
+            'votos_diputados' => 500,
+            'votos_senadores' => 0,
+            'blancos' => 0,
+            'nulos' => 0,
+            'recurridos' => 0
+        ]);
+
+        $mesa2 = Mesa::factory()->create(['provincia_id' => $provincia->id]);
+        Telegrama::factory()->create([
+            'mesa_id' => $mesa2->id,
+            'lista_id' => $lista->id,
+            'votos_diputados' => 300,
+            'votos_senadores' => 0,
+            'blancos' => 0,
+            'nulos' => 0,
+            'recurridos' => 0
+        ]);
+
+        // Act
+        $resultado = $this->calculationService->resultadosPorCandidato($candidato->id);
+
+        // Assert
+        $this->assertEquals($candidato->id, $resultado['candidato_id']);
+        $this->assertEquals('Juan Pérez', $resultado['candidato_nombre']);
+        $this->assertEquals($lista->id, $resultado['lista_id']);
+        $this->assertEquals('Lista Completa', $resultado['lista_nombre']);
+        $this->assertEquals(Lista::CARGO_DIPUTADOS, $resultado['cargo']);
+        $this->assertEquals(800, $resultado['votos_lista']); // 500 + 300
+        $this->assertEquals($provincia->id, $resultado['provincia_id']);
+    }
+
+    /** @test */
+    public function test_resultados_por_candidato_lanza_excepcion_si_no_existe()
+    {
+        // Arrange - No candidato created
+
+        // Act & Assert
+        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
+
+        $this->calculationService->resultadosPorCandidato(99999);
+    }
+
+    /** @test */
+    public function test_resultados_por_lista_agrega_votos_correctamente()
+    {
+        // Arrange
+        $provincia = Provincia::factory()->create();
+
+        $lista = Lista::factory()->create([
+            'nombre' => 'Lista Nacional',
+            'alianza' => 'Gran Alianza',
+            'provincia_id' => $provincia->id,
+            'cargo' => Lista::CARGO_SENADORES
+        ]);
+
+        // Create multiple telegramas
+        $mesa1 = Mesa::factory()->create(['provincia_id' => $provincia->id]);
+        Telegrama::factory()->create([
+            'mesa_id' => $mesa1->id,
+            'lista_id' => $lista->id,
+            'votos_senadores' => 150,
+            'votos_diputados' => 0,
+            'blancos' => 0,
+            'nulos' => 0,
+            'recurridos' => 0
+        ]);
+
+        $mesa2 = Mesa::factory()->create(['provincia_id' => $provincia->id]);
+        Telegrama::factory()->create([
+            'mesa_id' => $mesa2->id,
+            'lista_id' => $lista->id,
+            'votos_senadores' => 250,
+            'votos_diputados' => 0,
+            'blancos' => 0,
+            'nulos' => 0,
+            'recurridos' => 0
+        ]);
+
+        $mesa3 = Mesa::factory()->create(['provincia_id' => $provincia->id]);
+        Telegrama::factory()->create([
+            'mesa_id' => $mesa3->id,
+            'lista_id' => $lista->id,
+            'votos_senadores' => 100,
+            'votos_diputados' => 0,
+            'blancos' => 0,
+            'nulos' => 0,
+            'recurridos' => 0
+        ]);
+
+        // Act
+        $resultado = $this->calculationService->resultadosPorLista($lista->id);
+
+        // Assert
+        $this->assertEquals($lista->id, $resultado['lista_id']);
+        $this->assertEquals('Lista Nacional', $resultado['lista_nombre']);
+        $this->assertEquals('Gran Alianza', $resultado['lista_alianza']);
+        $this->assertEquals(Lista::CARGO_SENADORES, $resultado['cargo']);
+        $this->assertEquals($provincia->id, $resultado['provincia_id']);
+        $this->assertEquals(500, $resultado['total_votos']); // 150 + 250 + 100
+    }
+
+    /** @test */
+    public function test_resultados_por_lista_incluye_candidatos()
+    {
+        // Arrange
+        $provincia = Provincia::factory()->create();
+
+        $lista = Lista::factory()->create([
+            'provincia_id' => $provincia->id,
+            'cargo' => Lista::CARGO_DIPUTADOS
+        ]);
+
+        // Create candidatos in specific order
+        $candidato1 = Candidato::create([
+            'nombre' => 'Primer Candidato',
+            'lista_id' => $lista->id,
+            'provincia_id' => $provincia->id,
+            'cargo' => Lista::CARGO_DIPUTADOS,
+            'orden' => 1
+        ]);
+
+        $candidato2 = Candidato::create([
+            'nombre' => 'Segundo Candidato',
+            'lista_id' => $lista->id,
+            'provincia_id' => $provincia->id,
+            'cargo' => Lista::CARGO_DIPUTADOS,
+            'orden' => 2
+        ]);
+
+        $candidato3 = Candidato::create([
+            'nombre' => 'Tercer Candidato',
+            'lista_id' => $lista->id,
+            'provincia_id' => $provincia->id,
+            'cargo' => Lista::CARGO_DIPUTADOS,
+            'orden' => 3
+        ]);
+
+        // Create at least one telegrama
+        $mesa = Mesa::factory()->create(['provincia_id' => $provincia->id]);
+        Telegrama::factory()->create([
+            'mesa_id' => $mesa->id,
+            'lista_id' => $lista->id,
+            'votos_diputados' => 100,
+            'votos_senadores' => 0,
+            'blancos' => 0,
+            'nulos' => 0,
+            'recurridos' => 0
+        ]);
+
+        // Act
+        $resultado = $this->calculationService->resultadosPorLista($lista->id);
+
+        // Assert - Should include candidatos array ordered by 'orden'
+        $this->assertArrayHasKey('candidatos', $resultado);
+        $this->assertCount(3, $resultado['candidatos']);
+
+        $this->assertEquals($candidato1->id, $resultado['candidatos'][0]['id']);
+        $this->assertEquals('Primer Candidato', $resultado['candidatos'][0]['nombre']);
+        $this->assertEquals(1, $resultado['candidatos'][0]['orden']);
+
+        $this->assertEquals($candidato2->id, $resultado['candidatos'][1]['id']);
+        $this->assertEquals(2, $resultado['candidatos'][1]['orden']);
+
+        $this->assertEquals($candidato3->id, $resultado['candidatos'][2]['id']);
+        $this->assertEquals(3, $resultado['candidatos'][2]['orden']);
+    }
+
+    /** @test */
+    public function test_resultados_por_provincia_usa_cache()
+    {
+        // Arrange
+        $provincia = Provincia::create(['nombre' => 'Buenos Aires', 'codigo' => 'BA']);
+        $lista = Lista::create([
+            'nombre' => 'Lista Test',
+            'provincia_id' => $provincia->id,
+            'cargo' => 'DIPUTADOS',
+            'alianza' => 'Test Alianza'
+        ]);
+        $mesa = Mesa::create([
+            'id_mesa' => 'MESA-CACHE-1',
+            'provincia_id' => $provincia->id,
+            'electores' => 1000
+        ]);
+        Telegrama::create([
+            'mesa_id' => $mesa->id,
+            'lista_id' => $lista->id,
+            'votos_diputados' => 500,
+            'votos_senadores' => 0,
+            'blancos' => 0,
+            'nulos' => 0,
+            'recurridos' => 0,
+            'usuario' => 'test_user'
+        ]);
+
+        // Act - Call twice to test cache mechanism
+        $resultado1 = $this->calculationService->resultadosPorProvincia($provincia->id, 'DIPUTADOS');
+        $resultado2 = $this->calculationService->resultadosPorProvincia($provincia->id, 'DIPUTADOS');
+
+        // Assert - Results should be identical (cache working correctly)
+        $this->assertEquals($resultado1, $resultado2);
+        $this->assertEquals(500, $resultado1['total_votos_validos']);
+        $this->assertCount(1, $resultado1['listas']);
+    }
+
+    /** @test */
+    public function test_resumen_nacional_usa_cache()
+    {
+        // Arrange
+        $provincia = Provincia::create(['nombre' => 'Córdoba', 'codigo' => 'CB']);
+        $lista = Lista::create([
+            'nombre' => 'Lista Nacional',
+            'provincia_id' => $provincia->id,
+            'cargo' => 'SENADORES',
+            'alianza' => 'Alianza Nacional'
+        ]);
+        $mesa = Mesa::create([
+            'id_mesa' => 'MESA-CACHE-2',
+            'provincia_id' => $provincia->id,
+            'electores' => 1000
+        ]);
+        Telegrama::create([
+            'mesa_id' => $mesa->id,
+            'lista_id' => $lista->id,
+            'votos_diputados' => 0,
+            'votos_senadores' => 300,
+            'blancos' => 0,
+            'nulos' => 0,
+            'recurridos' => 0,
+            'usuario' => 'test_user'
+        ]);
+
+        // Act - Call twice to test cache mechanism
+        $resultado1 = $this->calculationService->resumenNacional('SENADORES');
+        $resultado2 = $this->calculationService->resumenNacional('SENADORES');
+
+        // Assert - Results should be identical (cache working correctly)
+        $this->assertEquals($resultado1, $resultado2);
+        $this->assertEquals(300, $resultado1['total_votos_validos']);
+        $this->assertCount(1, $resultado1['listas']);
+    }
+
+    /** @test */
+    public function test_cache_se_invalida_al_crear_telegrama()
+    {
+        // Arrange
+        $provincia = Provincia::create(['nombre' => 'Santa Fe', 'codigo' => 'SF']);
+        $lista1 = Lista::create([
+            'nombre' => 'Lista A',
+            'provincia_id' => $provincia->id,
+            'cargo' => 'DIPUTADOS',
+            'alianza' => 'Alianza A'
+        ]);
+        $lista2 = Lista::create([
+            'nombre' => 'Lista B',
+            'provincia_id' => $provincia->id,
+            'cargo' => 'DIPUTADOS',
+            'alianza' => 'Alianza B'
+        ]);
+        $mesa = Mesa::create([
+            'id_mesa' => 'MESA-CACHE-3',
+            'provincia_id' => $provincia->id,
+            'electores' => 1000
+        ]);
+        Telegrama::create([
+            'mesa_id' => $mesa->id,
+            'lista_id' => $lista1->id,
+            'votos_diputados' => 100,
+            'votos_senadores' => 0,
+            'blancos' => 0,
+            'nulos' => 0,
+            'recurridos' => 0,
+            'usuario' => 'test_user'
+        ]);
+
+        // Act - Call resumenNacional to populate cache
+        $resultadoAntes = $this->calculationService->resumenNacional('DIPUTADOS');
+        $this->assertEquals(100, $resultadoAntes['total_votos_validos']);
+
+        // Create new telegrama for different lista (should invalidate cache)
+        Telegrama::create([
+            'mesa_id' => $mesa->id,
+            'lista_id' => $lista2->id,
+            'votos_diputados' => 200,
+            'votos_senadores' => 0,
+            'blancos' => 0,
+            'nulos' => 0,
+            'recurridos' => 0,
+            'usuario' => 'test_user'
+        ]);
+
+        // Act - Call resumenNacional again (should reflect new data)
+        $resultadoDespues = $this->calculationService->resumenNacional('DIPUTADOS');
+
+        // Assert - New data should be reflected (cache was invalidated)
+        $this->assertEquals(300, $resultadoDespues['total_votos_validos']);
     }
 }

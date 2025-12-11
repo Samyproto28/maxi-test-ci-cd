@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Candidato extends Model
+class Candidato extends Model implements Auditable
 {
+    use \OwenIt\Auditing\Auditable, HasFactory;
+
     public const CARGO_DIPUTADOS = 'DIPUTADOS';
     public const CARGO_SENADORES = 'SENADORES';
     public const CARGOS = [self::CARGO_DIPUTADOS, self::CARGO_SENADORES];

@@ -467,7 +467,7 @@
           "6",
           "4"
         ],
-        "status": "done",
+        "status": "deferred",
         "subtasks": [
           {
             "id": 1,
@@ -538,7 +538,7 @@
         "complexity": 5,
         "recommendedSubtasks": 0,
         "expansionPrompt": "",
-        "updatedAt": "2025-12-09T18:35:13.081Z"
+        "updatedAt": "2025-12-11T18:38:25.545Z"
       },
       {
         "id": "8",
@@ -1121,7 +1121,7 @@
         "dependencies": [
           "9"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -1129,9 +1129,10 @@
             "description": "Generar el archivo del modelo Eloquent Auditoria utilizando el comando artisan y configurar la estructura básica de la clase",
             "dependencies": [],
             "details": "1. Ejecutar comando: `php artisan make:model Auditoria`\n2. El archivo se generará en `app/Models/Auditoria.php`\n3. Verificar que el namespace sea `App\\Models` y que extienda de `Illuminate\\Database\\Eloquent\\Model`\n4. Este paso crea solo el archivo vacío con la estructura base de Laravel\n5. No incluir ninguna lógica personalizada aún, solo la generación del esqueleto",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verificar manualmente que el archivo `app/Models/Auditoria.php` existe y contiene la estructura base de Laravel con namespace correcto",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T14:16:02.545Z"
           },
           {
             "id": 2,
@@ -1141,9 +1142,10 @@
               1
             ],
             "details": "1. Agregar constantes públicas: `public const ACCION_CREATE = 'CREATE';`, `ACCION_UPDATE = 'UPDATE';`, `ACCION_DELETE = 'DELETE';`\n2. Crear array de constantes: `public const ACCIONES = [self::ACCION_CREATE, self::ACCION_UPDATE, self::ACCION_DELETE];`\n3. Definir nombre de tabla: `protected $table = 'auditoria';`\n4. Desactivar updated_at: `public $timestamps = false;` (el modelo solo usará created_at según especificación)\n5. Estas constantes se usarán para validar las acciones registradas en auditoría",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test unitario verificando: (1) Constantes existen con valores correctos ('CREATE', 'UPDATE', 'DELETE'), (2) Array ACCIONES contiene las tres constantes, (3) Propiedad $table es 'auditoria', (4) Propiedad $timestamps es false",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T14:16:02.553Z"
           },
           {
             "id": 3,
@@ -1153,9 +1155,10 @@
               2
             ],
             "details": "1. Agregar propiedad protected $fillable con array de campos:\n   - 'tabla': nombre de la tabla afectada por el cambio\n   - 'registro_id': ID del registro modificado\n   - 'accion': tipo de operación (CREATE/UPDATE/DELETE)\n   - 'datos_anteriores': estado previo en formato JSON\n   - 'datos_nuevos': estado nuevo en formato JSON\n   - 'usuario': nombre del usuario que realizó el cambio\n2. Estos campos son los únicos que pueden ser asignados mediante create() o fill()\n3. No incluir 'id' ni 'created_at' ya que son manejados automáticamente",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test unitario verificando: (1) Array $fillable contiene exactamente los 6 campos especificados, (2) Se puede crear un registro usando Auditoria::create() con estos campos, (3) Intentar asignar un campo no fillable lanza excepción o es ignorado",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T14:16:02.560Z"
           },
           {
             "id": 4,
@@ -1165,9 +1168,10 @@
               3
             ],
             "details": "1. Agregar propiedad protected $casts con array de conversiones:\n   - 'datos_anteriores' => 'array': convierte JSON almacenado en DB a array PHP al leer, y array PHP a JSON al guardar\n   - 'datos_nuevos' => 'array': misma conversión bidireccional JSON ↔ array\n   - 'created_at' => 'datetime': convierte timestamp a objeto Carbon para facilitar manipulación de fechas\n2. Esto permite trabajar con arrays en PHP mientras se almacena JSON en MySQL\n3. Los casts son bidireccionales: serializan al guardar y deserializan al leer",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test unitario verificando: (1) Al guardar un array en datos_anteriores se serializa a JSON en DB, (2) Al leer datos_anteriores desde DB se deserializa a array, (3) Datos complejos (arrays anidados, objetos) se manejan correctamente, (4) created_at se convierte a instancia Carbon, (5) Valores null en campos JSON se manejan sin errores",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T14:16:02.567Z"
           },
           {
             "id": 5,
@@ -1177,14 +1181,16 @@
               4
             ],
             "details": "1. Definir método: `public static function registrar(string $tabla, int $registroId, string $accion, ?array $datosAnteriores, ?array $datosNuevos, string $usuario): self`\n2. El método recibe:\n   - $tabla: nombre de la tabla modificada\n   - $registroId: ID del registro afectado\n   - $accion: tipo de operación (usar constantes ACCION_*)\n   - $datosAnteriores: estado previo (nullable para CREATE)\n   - $datosNuevos: estado nuevo (nullable para DELETE)\n   - $usuario: identificador del usuario\n3. Internamente ejecuta: `return self::create([...])` con todos los parámetros\n4. Retorna la instancia de Auditoria creada para permitir encadenamiento\n5. Este método simplifica la creación de auditorías en otros servicios",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test unitario verificando: (1) Método registrar() crea registro en DB correctamente, (2) Retorna instancia de Auditoria, (3) Acepta null en datosAnteriores (caso CREATE), (4) Acepta null en datosNuevos (caso DELETE), (5) Los arrays se almacenan correctamente como JSON, (6) Campo created_at se establece automáticamente, (7) No se crea updated_at",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T14:16:02.574Z"
           }
         ],
         "complexity": 3,
         "recommendedSubtasks": 0,
-        "expansionPrompt": ""
+        "expansionPrompt": "",
+        "updatedAt": "2025-12-11T14:16:02.574Z"
       },
       {
         "id": "16",
@@ -1197,7 +1203,7 @@
           "15",
           "2"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -1205,9 +1211,10 @@
             "description": "Publicar los archivos de configuración del paquete owen-it/laravel-auditing y personalizar las opciones en config/audit.php según los requisitos del proyecto",
             "dependencies": [],
             "details": "1. Ejecutar comando: `php artisan vendor:publish --provider=\"OwenIt\\Auditing\\AuditingServiceProvider\" --tag=\"config\"`\n2. Verificar que se haya creado el archivo `config/audit.php`\n3. Ajustar configuración en config/audit.php:\n   - Establecer 'driver' => 'database' para almacenar auditorías en BD\n   - Configurar 'console' => false para evitar auditar comandos de consola\n   - Implementar función personalizada en 'user' => ['resolver' => ...] para obtener el usuario autenticado actual\n   - Configurar 'events' para especificar qué acciones auditar (created, updated, deleted, restored)\n4. Revisar otras opciones como 'threshold' (límite de auditorías) y 'strict' (modo estricto)\n5. Documentar cambios realizados en comentarios del archivo de configuración",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verificar manualmente que el archivo config/audit.php existe y contiene las configuraciones correctas: driver='database', console=false, y función de resolución de usuario configurada. Ejecutar `php artisan config:cache` para validar que no hay errores de sintaxis en la configuración.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T14:31:04.408Z"
           },
           {
             "id": 2,
@@ -1217,9 +1224,10 @@
               1
             ],
             "details": "1. Ejecutar comando: `php artisan auditing:install` para generar la migración de la tabla 'audits'\n2. Revisar el archivo de migración generado en database/migrations/ para entender la estructura:\n   - Columnas: id, user_type, user_id, event, auditable_type, auditable_id, old_values, new_values, url, ip_address, user_agent, tags, created_at, updated_at\n   - Índices para optimizar consultas de auditoría\n3. Ejecutar migración: `php artisan migrate` para crear la tabla en la base de datos\n4. Verificar en MySQL que la tabla 'audits' se creó correctamente con todas sus columnas e índices\n5. Documentar la estructura de la tabla para referencia futura",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Ejecutar `php artisan migrate:status` para confirmar que la migración de audits se ejecutó correctamente. Verificar en MySQL con `DESCRIBE audits;` que la tabla tiene todas las columnas esperadas (user_type, user_id, event, auditable_type, auditable_id, old_values, new_values, url, ip_address, user_agent, tags, timestamps).",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T14:31:04.478Z"
           },
           {
             "id": 3,
@@ -1229,9 +1237,10 @@
               2
             ],
             "details": "1. Abrir modelo app/Models/Telegrama.php y agregar:\n   - `use OwenIt\\Auditing\\Contracts\\Auditable;` en imports\n   - Implementar interfaz: `class Telegrama extends Model implements Auditable`\n   - Agregar trait: `use \\OwenIt\\Auditing\\Auditable;` dentro de la clase\n2. Repetir proceso para modelo Candidato (app/Models/Candidato.php)\n3. Repetir proceso para modelo Lista (app/Models/Lista.php)\n4. Opcionalmente configurar atributos auditables en cada modelo con propiedad `protected $auditInclude` o `$auditExclude` para controlar qué campos auditar\n5. Configurar propiedad `protected $auditTimestamps = true;` si se desea auditar cambios en timestamps\n6. Verificar que los modelos se importan correctamente sin errores de sintaxis",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verificar mediante inspección de código que los tres modelos (Telegrama, Candidato, Lista) implementan correctamente la interfaz Auditable y usan el trait. Ejecutar `php artisan tinker` y crear una instancia de cada modelo para confirmar que no hay errores de clase o trait no encontrado.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T14:31:04.552Z"
           },
           {
             "id": 4,
@@ -1241,14 +1250,16 @@
               3
             ],
             "details": "1. Configurar identificación de usuario:\n   - Opción A (Middleware): Crear middleware que establezca el usuario actual antes de operaciones CRUD\n   - Opción B (Config): Ajustar función resolver en config/audit.php para usar Auth::user() o el sistema de autenticación implementado\n2. Realizar pruebas manuales de auditoría:\n   - Crear un nuevo Telegrama y verificar registro en tabla audits (event='created')\n   - Actualizar campos del Telegrama y verificar que old_values y new_values se registran correctamente\n   - Eliminar Telegrama y verificar registro de event='deleted' con old_values\n3. Repetir pruebas con modelos Candidato y Lista\n4. Verificar que user_id se registra correctamente en todos los casos\n5. Probar consulta de auditorías: `$telegrama->audits` para obtener historial\n6. Documentar casos de prueba y resultados obtenidos",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test de feature verificando: (1) Al crear Telegrama se genera registro de auditoría con event='created' y new_values poblado, (2) Al actualizar Telegrama se registran datos anteriores en old_values y nuevos en new_values, (3) Al eliminar se registra DELETE con datos anteriores, (4) Usuario se registra correctamente en user_id cuando está autenticado, (5) Consulta de auditorías con $telegrama->audits devuelve colección correcta, (6) Lo mismo para modelos Candidato y Lista",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T14:31:04.624Z"
           }
         ],
         "complexity": 5,
         "recommendedSubtasks": 4,
-        "expansionPrompt": "Dividir en: (1) Publicación de configuración y ajuste de config/audit.php, (2) Creación de migración para tabla 'audits' y ejecución, (3) Implementación de trait Auditable en modelos críticos (Telegrama, Candidato, Lista), (4) Configuración de usuario en middleware y pruebas de auditoría"
+        "expansionPrompt": "Dividir en: (1) Publicación de configuración y ajuste de config/audit.php, (2) Creación de migración para tabla 'audits' y ejecución, (3) Implementación de trait Auditable en modelos críticos (Telegrama, Candidato, Lista), (4) Configuración de usuario en middleware y pruebas de auditoría",
+        "updatedAt": "2025-12-11T14:31:04.624Z"
       },
       {
         "id": "17",
@@ -2077,7 +2088,7 @@
         "dependencies": [
           "14"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -2085,9 +2096,10 @@
             "description": "Crear el archivo app/Services/ResultadoCalculationService.php con namespace, imports y estructura de clase base",
             "dependencies": [],
             "details": "1. Crear directorio app/Services si no existe\n2. Crear archivo ResultadoCalculationService.php\n3. Definir namespace App\\Services\n4. Importar modelos necesarios: Telegrama, Lista, Candidato, Provincia\n5. Importar Illuminate\\Support\\Facades\\DB\n6. Crear clase ResultadoCalculationService vacía con comentarios PHPDoc\n7. Preparar estructura para los 4 métodos principales que se implementarán",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verificar que el archivo existe en la ruta correcta, namespace es correcto, imports están presentes y clase se puede instanciar sin errores",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T04:10:55.575Z"
           },
           {
             "id": 2,
@@ -2097,9 +2109,10 @@
               1
             ],
             "details": "1. Crear método public resultadosPorProvincia(int $provinciaId, string $cargo): array\n2. Obtener listas de la provincia filtradas por cargo (DIPUTADOS/SENADORES)\n3. Iterar listas y calcular votos mediante join con tabla mesas\n4. Usar suma condicional según cargo (votos_diputados vs votos_senadores)\n5. Acumular total de votos válidos\n6. Calcular porcentaje para cada lista: (votos/total)*100 redondeado a 2 decimales\n7. Ordenar resultados descendente por votos usando usort\n8. Retornar array con provincia_id, cargo, listas (con id, nombre, alianza, votos, porcentaje) y total_votos_validos",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test unitario verificando: (1) Suma de votos por lista es correcta, (2) Porcentajes calculados suman aproximadamente 100%, (3) Resultados ordenados descendente por votos, (4) Maneja provincia sin telegramas retornando 0 votos, (5) Distingue correctamente entre DIPUTADOS y SENADORES",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T04:10:55.583Z"
           },
           {
             "id": 3,
@@ -2109,9 +2122,10 @@
               2
             ],
             "details": "1. Crear método public resumenNacional(string $cargo): array\n2. Obtener todas las provincias (24 total)\n3. Por cada provincia, llamar resultadosPorProvincia o replicar lógica de agregación\n4. Agrupar votos por lista_id sumando votos de todas las provincias\n5. Calcular total nacional de votos válidos\n6. Calcular porcentaje nacional para cada lista\n7. Incluir desglose por provincia si es necesario\n8. Ordenar resultados por votos descendente\n9. Retornar array con cargo, listas agregadas nacionalmente, total_votos_validos_nacional y opcionalmente desglose_provincial",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test unitario verificando: (1) Agrega correctamente votos de múltiples provincias, (2) Total nacional coincide con suma de provinciales, (3) Porcentajes nacionales se calculan sobre total nacional, (4) Maneja caso donde lista existe solo en algunas provincias, (5) Performance es aceptable para 24 provincias",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T04:10:55.589Z"
           },
           {
             "id": 4,
@@ -2121,9 +2135,10 @@
               2
             ],
             "details": "1. Crear método public resultadosPorCandidato(int $candidatoId): array\n2. Obtener candidato y su lista asociada\n3. Calcular votos de la lista del candidato en todas las provincias donde participa\n4. Incluir información del candidato (nombre, cargo, lista, alianza)\n5. Agregar votos por provincia y total nacional\n6. Calcular porcentaje respecto al total de su cargo\n7. Crear método public resultadosPorLista(int $listaId): array\n8. Obtener lista con sus candidatos\n9. Calcular votos de la lista por provincia y nacional\n10. Incluir ranking de la lista respecto a otras del mismo cargo\n11. Retornar arrays estructurados con toda la información relevante",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test unitario verificando: (1) resultadosPorCandidato retorna votos correctos de su lista, (2) Incluye todas las provincias donde participa, (3) resultadosPorLista agrega correctamente todos sus candidatos, (4) Maneja candidatos/listas sin votos, (5) Información de alianza y cargo es correcta",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T04:10:55.596Z"
           },
           {
             "id": 5,
@@ -2135,14 +2150,16 @@
               4
             ],
             "details": "1. Refactorizar resultadosPorProvincia usando DB::table con joins en lugar de loops\n2. Implementar groupBy('lista_id') para agregar votos en una sola query\n3. Usar selectRaw para calcular sumas directamente en SQL\n4. Optimizar resumenNacional con single query usando joins múltiples y groupBy\n5. Agregar índices sugeridos en comentarios si no existen\n6. Implementar caché con Cache::remember() para resultados que cambian poco\n7. Definir TTL de caché apropiado (ej: 5 minutos durante recuento activo)\n8. Implementar invalidación de caché cuando se crean/actualizan telegramas\n9. Documentar estrategia de caché en comentarios PHPDoc\n10. Comparar performance antes/después con queries de prueba",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test de performance verificando: (1) Queries optimizadas ejecutan en <100ms para provincia, (2) resumenNacional ejecuta en <500ms, (3) Caché funciona correctamente y reduce tiempo a <10ms, (4) Invalidación de caché funciona al crear telegrama, (5) Resultados con/sin caché son idénticos, (6) Número de queries SQL se reduce significativamente",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T04:10:55.604Z"
           }
         ],
         "complexity": 8,
         "recommendedSubtasks": 5,
-        "expansionPrompt": "Subdividir en: (1) Implementación de método resultadosPorProvincia con agregación, joins y cálculo de porcentajes, (2) Implementación de método resumenNacional agregando todas las provincias, (3) Implementación de método resultadosPorCandidato, (4) Implementación de método resultadosPorLista, (5) Optimización de queries con groupBy, joins eficientes y consideración de caché"
+        "expansionPrompt": "Subdividir en: (1) Implementación de método resultadosPorProvincia con agregación, joins y cálculo de porcentajes, (2) Implementación de método resumenNacional agregando todas las provincias, (3) Implementación de método resultadosPorCandidato, (4) Implementación de método resultadosPorLista, (5) Optimización de queries con groupBy, joins eficientes y consideración de caché",
+        "updatedAt": "2025-12-11T04:10:55.604Z"
       },
       {
         "id": "29",
@@ -2154,7 +2171,7 @@
         "dependencies": [
           "28"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -2162,9 +2179,10 @@
             "description": "Generar el controller ResultadoController usando artisan e inyectar el servicio ResultadoCalculationService en el constructor para delegar la lógica de cálculo de resultados",
             "dependencies": [],
             "details": "Ejecutar comando `php artisan make:controller Api/ResultadoController` para generar el controller base. Agregar el constructor con inyección de dependencias del ResultadoCalculationService usando property promotion de PHP 8+: `public function __construct(private ResultadoCalculationService $calculationService) {}`. Importar las clases necesarias: `use App\\Services\\ResultadoCalculationService;`, `use Illuminate\\Http\\JsonResponse;`, `use Illuminate\\Http\\Request;`. Ubicar el controller en `app/Http/Controllers/Api/ResultadoController.php`.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verificar que el archivo del controller se crea correctamente en la ruta esperada y que el constructor inyecta correctamente el servicio mediante inspección del código",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T04:22:55.847Z"
           },
           {
             "id": 2,
@@ -2174,9 +2192,10 @@
               1
             ],
             "details": "Crear método `provincial(int $provinciaId, Request $request): JsonResponse` que valide el parámetro cargo con `$request->validate(['cargo' => 'required|in:DIPUTADOS,SENADORES'])` y llame a `$this->calculationService->resultadosPorProvincia($provinciaId, $request->cargo)`, retornando la respuesta JSON. Implementar método `nacional(Request $request): JsonResponse` con la misma validación de cargo, llamando a `$this->calculationService->resumenNacional($request->cargo)` y retornando JSON. Ambos métodos deben manejar automáticamente errores de validación mediante las excepciones de Laravel.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Tests unitarios verificando: (1) Validación rechaza cargos inválidos con error 422, (2) Validación acepta DIPUTADOS y SENADORES, (3) Métodos llaman correctamente al servicio con parámetros esperados, (4) Respuesta JSON tiene estructura correcta",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T04:22:55.853Z"
           },
           {
             "id": 3,
@@ -2186,9 +2205,10 @@
               1
             ],
             "details": "Crear método `porCandidato(int $candidatoId): JsonResponse` que llame a `$this->calculationService->resultadosPorCandidato($candidatoId)` y retorne la respuesta en formato JSON. Implementar método `porLista(int $listaId): JsonResponse` que llame a `$this->calculationService->resultadosPorLista($listaId)` y retorne JSON. Ambos métodos reciben el ID como parámetro de ruta y delegan toda la lógica de consulta y cálculo al servicio inyectado. No requieren validación adicional ya que el routing de Laravel valida que sean enteros.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Tests de feature verificando: (1) GET con ID válido retorna datos del candidato/lista, (2) GET con ID inexistente retorna 404, (3) Estructura de respuesta JSON es correcta, (4) Datos calculados coinciden con lo esperado",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T04:22:55.860Z"
           },
           {
             "id": 4,
@@ -2199,14 +2219,16 @@
               3
             ],
             "details": "En archivo `routes/api.php`, agregar grupo de rutas con prefijo 'resultados': `Route::prefix('resultados')->group(function () { Route::get('provincial/{provincia}', [ResultadoController::class, 'provincial']); Route::get('nacional', [ResultadoController::class, 'nacional']); Route::get('candidato/{candidato}', [ResultadoController::class, 'porCandidato']); Route::get('lista/{lista}', [ResultadoController::class, 'porLista']); });`. Importar el controller: `use App\\Http\\Controllers\\Api\\ResultadoController;`. Crear test de feature `tests/Feature/ResultadoControllerTest.php` con casos para cada endpoint verificando respuestas exitosas y errores de validación.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Tests de integración verificando: (1) GET /api/v1/resultados/provincial/{id}?cargo=DIPUTADOS retorna 200 con datos correctos, (2) Falta parámetro cargo retorna 422, (3) GET /api/v1/resultados/nacional?cargo=SENADORES retorna agregación correcta, (4) Endpoints de candidato y lista funcionan con IDs válidos, (5) Todas las rutas están correctamente registradas con php artisan route:list",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T04:22:55.868Z"
           }
         ],
         "complexity": 5,
         "recommendedSubtasks": 4,
-        "expansionPrompt": "Subdividir en: (1) Creación de ResultadoController con inyección de ResultadoCalculationService, (2) Implementación de endpoints provincial y nacional con validación de cargo, (3) Implementación de endpoints porCandidato y porLista, (4) Definición de rutas bajo prefijo 'resultados' y pruebas de endpoints"
+        "expansionPrompt": "Subdividir en: (1) Creación de ResultadoController con inyección de ResultadoCalculationService, (2) Implementación de endpoints provincial y nacional con validación de cargo, (3) Implementación de endpoints porCandidato y porLista, (4) Definición de rutas bajo prefijo 'resultados' y pruebas de endpoints",
+        "updatedAt": "2025-12-11T04:22:55.868Z"
       },
       {
         "id": "30",
@@ -2223,7 +2245,7 @@
           "13",
           "14"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -2231,9 +2253,10 @@
             "description": "Crear el archivo ImportService.php e implementar el método importarProvincias utilizando league/csv con manejo de transacciones DB, reporte de errores por línea y validación de campos requeridos",
             "dependencies": [],
             "details": "1. Crear archivo app/Services/ImportService.php\n2. Instalar league/csv si no está disponible\n3. Implementar método importarProvincias(string $filePath): array\n4. Usar Reader::createFromPath con setHeaderOffset(0) para leer headers\n5. Implementar DB::beginTransaction() y try-catch con rollback\n6. Validar campos 'nombre' y 'codigo' del CSV\n7. Capturar errores por línea y agregarlos al array de errores sin detener el proceso\n8. Retornar array con ['importados' => int, 'errores' => array] incluyendo número de línea en cada error\n9. Usar Provincia::create() para insertar registros",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test verificando: (1) CSV válido con 5 provincias importa todas correctamente, (2) CSV con error en línea 3 importa las demás y retorna error específico, (3) Excepción crítica revierte transacción completa, (4) Campos faltantes generan error descriptivo, (5) Array de retorno tiene estructura correcta",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T13:54:06.789Z"
           },
           {
             "id": 2,
@@ -2243,9 +2266,10 @@
               1
             ],
             "details": "1. Implementar método importarListas(string $filePath): array\n2. Validar que provincia_id exista antes de crear lista\n3. Validar campos requeridos: nombre, numero, provincia_id, cargo\n4. Implementar método importarCandidatos(string $filePath): array\n5. Validar que lista_id exista antes de crear candidato\n6. Validar campos: nombre, lista_id, orden\n7. Usar misma estructura de transacciones y manejo de errores que importarProvincias\n8. Capturar errores de validación de relaciones (foreign keys)\n9. Retornar array ['importados' => int, 'errores' => array] en ambos métodos",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test verificando: (1) CSV de listas con provincia_id válido importa correctamente, (2) Lista con provincia_id inexistente genera error específico, (3) Candidatos con lista_id válido se importan, (4) Candidato con lista_id inexistente falla con mensaje claro, (5) Transacciones funcionan independientemente",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T13:54:06.798Z"
           },
           {
             "id": 3,
@@ -2255,9 +2279,10 @@
               1
             ],
             "details": "1. Implementar método importarMesas(string $filePath): array\n2. Validar que provincia_id exista en tabla provincias\n3. Validar campos requeridos: numero, provincia_id, electores\n4. Validar que 'electores' sea un número entero positivo\n5. Validar que 'numero' sea string válido\n6. Usar transacciones DB con try-catch y rollback\n7. Capturar errores de validación por línea\n8. Registrar errores con número de línea específico\n9. Retornar estructura ['importados' => int, 'errores' => array]",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test verificando: (1) CSV válido importa todas las mesas, (2) Provincia inexistente genera error en línea específica, (3) Electores negativo o no numérico falla validación, (4) Transacción se revierte ante error crítico, (5) Múltiples errores se reportan todos correctamente",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T13:54:06.811Z"
           },
           {
             "id": 4,
@@ -2267,9 +2292,10 @@
               3
             ],
             "details": "1. Inyectar TelegramaValidationService en constructor de ImportService\n2. Implementar método importarTelegramas(string $filePath): array\n3. Validar campos: mesa_id, lista_id, votos\n4. Validar que mesa_id y lista_id existan en sus tablas\n5. Llamar a TelegramaValidationService->validarSumaVotosNoExcedeElectores() antes de crear telegrama\n6. Capturar InvalidArgumentException de validación y agregar a errores\n7. Validar que no exista duplicado de mesa_id + lista_id\n8. Usar transacciones para mantener consistencia\n9. Retornar errores descriptivos incluyendo validaciones de negocio",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test verificando: (1) Telegramas válidos se importan correctamente, (2) Suma de votos > electores genera error específico con mensaje de TelegramaValidationService, (3) Mesa o lista inexistente falla, (4) Duplicado mesa+lista genera error, (5) Votos negativos fallan validación, (6) Transacción se revierte si hay error crítico",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T13:54:06.821Z"
           },
           {
             "id": 5,
@@ -2279,9 +2305,10 @@
               1
             ],
             "details": "1. Crear método privado validarEstructuraCSV(Reader $csv, array $headersEsperados): void\n2. Verificar que CSV tenga headers usando getHeader()\n3. Comparar headers del archivo con array de headers esperados\n4. Lanzar excepción descriptiva si faltan headers requeridos\n5. Implementar detección de encoding UTF-8 usando mb_detect_encoding\n6. Convertir a UTF-8 si es necesario usando mb_convert_encoding\n7. Llamar a validarEstructuraCSV al inicio de cada método importar*\n8. Crear arrays constantes con headers esperados para cada tipo de importación\n9. Agregar manejo de BOM (Byte Order Mark) si existe",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test verificando: (1) CSV con headers correctos pasa validación, (2) CSV sin header 'nombre' lanza excepción descriptiva, (3) Archivo en ISO-8859-1 se convierte a UTF-8, (4) BOM se elimina correctamente, (5) Caracteres especiales (ñ, acentos) se importan correctamente",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T13:54:06.829Z"
           },
           {
             "id": 6,
@@ -2294,14 +2321,16 @@
               5
             ],
             "details": "1. Modificar métodos importar* para usar chunk() de league/csv cuando archivo > 1000 líneas\n2. Implementar procesamiento por lotes de 500 registros con commit de transacción intermedio\n3. Agregar logging usando Log::info() al inicio y fin de cada importación\n4. Registrar estadísticas: total líneas, importados, errores, tiempo de ejecución\n5. Crear método privado logImportacion(string $tipo, int $importados, array $errores, float $tiempo)\n6. Usar memory_get_usage() para monitorear uso de memoria\n7. Implementar liberación de memoria después de cada chunk\n8. Registrar en log cada chunk procesado para archivos grandes\n9. Crear entrada en tabla auditoria para cada importación completada",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test verificando: (1) Archivo de 2000 líneas se procesa en chunks de 500, (2) Log registra inicio, chunks procesados y finalización, (3) Memoria se libera entre chunks, (4) Tiempo de ejecución se registra correctamente, (5) Entrada de auditoría se crea con estadísticas finales, (6) Errores en chunk intermedio no detienen procesamiento",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T13:54:06.835Z"
           }
         ],
         "complexity": 9,
         "recommendedSubtasks": 6,
-        "expansionPrompt": "Subdividir en: (1) Implementación de método importarProvincias con league/csv, manejo de transacciones y reporte de errores, (2) Implementación de métodos importarListas y importarCandidatos, (3) Implementación de método importarMesas, (4) Implementación de método importarTelegramas con validación compleja de suma de votos, (5) Validación de estructura CSV y encoding UTF-8, (6) Implementación de chunks para archivos grandes y logging de importación"
+        "expansionPrompt": "Subdividir en: (1) Implementación de método importarProvincias con league/csv, manejo de transacciones y reporte de errores, (2) Implementación de métodos importarListas y importarCandidatos, (3) Implementación de método importarMesas, (4) Implementación de método importarTelegramas con validación compleja de suma de votos, (5) Validación de estructura CSV y encoding UTF-8, (6) Implementación de chunks para archivos grandes y logging de importación",
+        "updatedAt": "2025-12-11T13:54:06.835Z"
       },
       {
         "id": "31",
@@ -2313,7 +2342,7 @@
         "dependencies": [
           "30"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -2321,9 +2350,10 @@
             "description": "Generar el controller base mediante Artisan e implementar constructor con inyección de dependencia del ImportService",
             "dependencies": [],
             "details": "1. Ejecutar comando: `php artisan make:controller Api/ImportExportController`\n2. Implementar constructor con inyección de dependencia:\n```php\nnamespace App\\Http\\Controllers\\Api;\n\nuse App\\Services\\ImportService;\nuse Illuminate\\Http\\{JsonResponse, Request};\nuse App\\Http\\Controllers\\Controller;\n\nclass ImportExportController extends Controller\n{\n    public function __construct(\n        private ImportService $importService\n    ) {}\n}\n```\n3. Verificar que el namespace sea correcto (App\\Http\\Controllers\\Api)\n4. Asegurar que los use statements incluyan JsonResponse, Request y Controller base",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verificar que el controller se crea correctamente y que la inyección de ImportService funciona mediante instanciación manual del controller en un test unitario",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T13:55:42.133Z"
           },
           {
             "id": 2,
@@ -2333,9 +2363,10 @@
               1
             ],
             "details": "1. Implementar método con validación de archivo:\n```php\npublic function importarProvincias(Request $request): JsonResponse {\n    $request->validate([\n        'file' => 'required|file|mimes:csv,txt|max:10240' // 10MB max\n    ]);\n    \n    $path = $request->file('file')->store('imports');\n    $fullPath = storage_path(\"app/{$path}\");\n    \n    try {\n        $resultado = $this->importService->importarProvincias($fullPath);\n        unlink($fullPath); // Limpiar archivo temporal\n        \n        return response()->json([\n            'success' => true,\n            'importados' => $resultado['importados'],\n            'errores' => $resultado['errores'],\n        ], $resultado['errores'] ? 207 : 200);\n    } catch (\\Exception $e) {\n        if (file_exists($fullPath)) unlink($fullPath);\n        return response()->json(['error' => $e->getMessage()], 500);\n    }\n}\n```\n2. Implementar manejo de código 207 Multi-Status para errores parciales\n3. Asegurar limpieza de archivos temporales en caso de éxito y error",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test de feature verificando: (1) POST con CSV válido retorna 200 con conteo de importados, (2) CSV con errores retorna 207 con array de errores, (3) Archivo no-CSV rechazado con 422, (4) Archivo > 10MB rechazado, (5) Archivos temporales se eliminan después del procesamiento",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T13:55:42.140Z"
           },
           {
             "id": 3,
@@ -2345,9 +2376,10 @@
               2
             ],
             "details": "1. Implementar importarListas:\n```php\npublic function importarListas(Request $request): JsonResponse {\n    $request->validate(['file' => 'required|file|mimes:csv,txt|max:10240']);\n    $path = $request->file('file')->store('imports');\n    $fullPath = storage_path(\"app/{$path}\");\n    \n    try {\n        $resultado = $this->importService->importarListas($fullPath);\n        unlink($fullPath);\n        return response()->json(['success' => true, 'importados' => $resultado['importados'], 'errores' => $resultado['errores']], $resultado['errores'] ? 207 : 200);\n    } catch (\\Exception $e) {\n        if (file_exists($fullPath)) unlink($fullPath);\n        return response()->json(['error' => $e->getMessage()], 500);\n    }\n}\n```\n2. Duplicar lógica para importarCandidatos e importarMesas\n3. Mantener consistencia en validación, códigos HTTP y manejo de errores\n4. Asegurar limpieza de archivos en todos los casos",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test de feature para cada endpoint verificando: (1) POST con CSV válido retorna 200/207 según resultado, (2) Validación de MIME types funciona, (3) Errores parciales retornan 207 con detalles, (4) Archivos temporales se eliminan correctamente",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T13:55:42.151Z"
           },
           {
             "id": 4,
@@ -2357,9 +2389,10 @@
               3
             ],
             "details": "1. Implementar método con validación reforzada:\n```php\npublic function importarTelegramas(Request $request): JsonResponse {\n    $request->validate([\n        'file' => 'required|file|mimes:csv,txt|max:10240'\n    ]);\n    \n    $path = $request->file('file')->store('imports');\n    $fullPath = storage_path(\"app/{$path}\");\n    \n    try {\n        // ImportService debe validar: suma votos <= electores, mesa+lista único, etc.\n        $resultado = $this->importService->importarTelegramas($fullPath);\n        unlink($fullPath);\n        \n        return response()->json([\n            'success' => true,\n            'importados' => $resultado['importados'],\n            'errores' => $resultado['errores'],\n            'advertencias' => $resultado['advertencias'] ?? []\n        ], $resultado['errores'] ? 207 : 200);\n    } catch (\\Exception $e) {\n        if (file_exists($fullPath)) unlink($fullPath);\n        return response()->json(['error' => $e->getMessage()], 500);\n    }\n}\n```\n2. Delegar validaciones complejas a ImportService (suma votos, duplicados, etc.)\n3. Incluir array de advertencias en respuesta para inconsistencias no críticas\n4. Mantener patrón de limpieza de archivos",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test de feature verificando: (1) POST con telegramas válidos retorna 200, (2) Telegramas con suma votos > electores reportados en errores, (3) Duplicados mesa+lista rechazados, (4) Advertencias incluidas en respuesta, (5) Código 207 cuando hay errores parciales",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T13:55:42.160Z"
           },
           {
             "id": 5,
@@ -2369,14 +2402,16 @@
               4
             ],
             "details": "1. Agregar rutas en routes/api.php:\n```php\nuse App\\Http\\Controllers\\Api\\ImportExportController;\n\nRoute::prefix('import')->middleware(['api'])->group(function () {\n    Route::post('provincias', [ImportExportController::class, 'importarProvincias']);\n    Route::post('listas', [ImportExportController::class, 'importarListas']);\n    Route::post('candidatos', [ImportExportController::class, 'importarCandidatos']);\n    Route::post('mesas', [ImportExportController::class, 'importarMesas']);\n    Route::post('telegramas', [ImportExportController::class, 'importarTelegramas']);\n});\n```\n2. Verificar que las rutas estén bajo el prefijo /api/v1 si existe versionado\n3. Documentar códigos HTTP:\n   - 200: Importación exitosa sin errores\n   - 207: Multi-Status, importación parcial con errores\n   - 422: Validación de archivo fallida\n   - 500: Error del servidor durante procesamiento\n4. Ejecutar `php artisan route:list` para verificar registro correcto",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test de integración verificando: (1) Todas las rutas están registradas correctamente con `php artisan route:list`, (2) Endpoints accesibles vía POST en /api/v1/import/*, (3) Códigos HTTP apropiados en distintos escenarios (200, 207, 422, 500), (4) Middleware API aplicado correctamente",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T13:55:42.167Z"
           }
         ],
         "complexity": 6,
         "recommendedSubtasks": 5,
-        "expansionPrompt": "Subdividir en: (1) Creación de ImportExportController con inyección de ImportService, (2) Implementación de endpoint importarProvincias con validación de archivo y storage, (3) Implementación de endpoints importarListas, importarCandidatos e importarMesas, (4) Implementación de endpoint importarTelegramas con validación compleja, (5) Definición de rutas bajo prefijo 'import', manejo de archivos temporales y códigos HTTP apropiados (200, 207, 422, 500)"
+        "expansionPrompt": "Subdividir en: (1) Creación de ImportExportController con inyección de ImportService, (2) Implementación de endpoint importarProvincias con validación de archivo y storage, (3) Implementación de endpoints importarListas, importarCandidatos e importarMesas, (4) Implementación de endpoint importarTelegramas con validación compleja, (5) Definición de rutas bajo prefijo 'import', manejo de archivos temporales y códigos HTTP apropiados (200, 207, 422, 500)",
+        "updatedAt": "2025-12-11T13:55:42.167Z"
       },
       {
         "id": "32",
@@ -2389,7 +2424,7 @@
           "28",
           "2"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -2397,9 +2432,10 @@
             "description": "Crear método exportarResultadosProvinciales en ExportService que genere archivo CSV con resultados provinciales incluyendo headers, datos de listas y totales",
             "dependencies": [],
             "details": "Implementar el método exportarResultadosProvinciales($provinciaId, $cargo) que: (1) Llame a ResultadoCalculationService->resultadosPorProvincia() para obtener datos, (2) Use League\\Csv\\Writer para crear CSV con delimitador ',' y enclosure '\"', (3) Inserte headers ['Lista', 'Alianza', 'Votos', 'Porcentaje'], (4) Itere sobre resultados insertando fila por cada lista con nombre, alianza, votos y porcentaje formateado, (5) Agregue fila vacía y fila de totales al final con total_votos_validos y '100%', (6) Retorne path completo del archivo generado en storage/app/exports/",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test verificando: (1) CSV generado contiene headers correctos en primera línea, (2) Datos de listas coinciden con resultados de ResultadoCalculationService, (3) Fila de totales aparece al final con suma correcta, (4) Porcentajes formateados con símbolo '%', (5) Archivo se crea en ruta esperada y método retorna path correcto",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T13:47:17.282Z"
           },
           {
             "id": 2,
@@ -2409,9 +2445,10 @@
               1
             ],
             "details": "Implementar exportarResumenNacional($cargo) que: (1) Llame a ResultadoCalculationService->resumenNacional() para obtener datos agregados, (2) Cree CSV con headers ['Provincia', 'Lista', 'Alianza', 'Votos', 'Porcentaje Nacional'], (3) Itere sobre resultados agrupados por provincia insertando filas con nombre provincia, lista, alianza, votos y porcentaje a nivel nacional, (4) Agregue sección de totales nacionales al final con suma total de votos, (5) Maneje correctamente provincias sin datos mostrando 0 votos, (6) Retorne path del archivo generado",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test verificando: (1) CSV incluye datos de las 24 provincias, (2) Agregación de votos por lista a nivel nacional es correcta, (3) Porcentajes calculados sobre total nacional, (4) Provincias sin telegramas muestran 0 votos sin errores, (5) Estructura del archivo permite identificar claramente cada provincia y sus resultados",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T13:47:17.292Z"
           },
           {
             "id": 3,
@@ -2422,9 +2459,10 @@
               2
             ],
             "details": "Modificar ambos métodos de exportación para: (1) Agregar BOM UTF-8 al inicio del archivo usando $csv->setOutputBOM(Writer::BOM_UTF8) para que Excel detecte correctamente caracteres especiales españoles (ñ, tildes), (2) Generar nombres únicos usando timestamp: 'resultados_provincial_' . date('YmdHis') . '.csv' y 'resumen_nacional_' . date('YmdHis') . '.csv', (3) Verificar que directorio storage/app/exports existe, crear si no existe usando Storage::makeDirectory(), (4) Retornar tanto el path completo como el nombre del archivo para referencia, (5) Documentar en PHPDoc el formato de encoding y nombres",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test verificando: (1) Archivos CSV contienen BOM UTF-8 en primeros 3 bytes, (2) Caracteres especiales (ñ, á, é, í, ó, ú) se visualizan correctamente en Excel, (3) Nombres de archivo incluyen timestamp y son únicos en cada ejecución, (4) Directorio exports se crea automáticamente si no existe, (5) Múltiples exportaciones consecutivas generan archivos con nombres diferentes",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T13:47:17.301Z"
           },
           {
             "id": 4,
@@ -2434,14 +2472,16 @@
               3
             ],
             "details": "Implementar método limpiarArchivosAntiguos($diasRetencion = 7) que: (1) Use Storage::files('exports') para listar archivos CSV en directorio, (2) Itere sobre archivos verificando fecha de modificación con Storage::lastModified(), (3) Elimine archivos con antigüedad mayor a $diasRetencion días usando Storage::delete(), (4) Retorne array con cantidad de archivos eliminados y espacio liberado, (5) Agregar comando Artisan para ejecutar limpieza: php artisan exports:cleanup, (6) Documentar que puede programarse en Kernel.php para ejecución diaria automática con $schedule->command('exports:cleanup')->daily()",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test verificando: (1) Archivos con antigüedad mayor a días especificados se eliminan, (2) Archivos recientes se preservan, (3) Método retorna información correcta de archivos eliminados, (4) Comando Artisan ejecuta limpieza correctamente, (5) Maneja correctamente directorio vacío sin errores, (6) No elimina archivos de otros directorios fuera de exports/",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T13:47:17.311Z"
           }
         ],
         "complexity": 6,
         "recommendedSubtasks": 4,
-        "expansionPrompt": "Subdividir en: (1) Implementación de método exportarResultadosProvinciales usando league/csv con headers, datos y totales, (2) Implementación de método exportarResumenNacional con agregación de 24 provincias, (3) Configuración de encoding UTF-8 con BOM para Excel y generación de nombres únicos con timestamp, (4) Implementación de limpieza periódica de archivos antiguos"
+        "expansionPrompt": "Subdividir en: (1) Implementación de método exportarResultadosProvinciales usando league/csv con headers, datos y totales, (2) Implementación de método exportarResumenNacional con agregación de 24 provincias, (3) Configuración de encoding UTF-8 con BOM para Excel y generación de nombres únicos con timestamp, (4) Implementación de limpieza periódica de archivos antiguos",
+        "updatedAt": "2025-12-11T13:47:17.311Z"
       },
       {
         "id": "33",
@@ -2454,7 +2494,7 @@
           "32",
           "31"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -2462,9 +2502,10 @@
             "description": "Agregar ExportService al constructor de ImportExportController e implementar los métodos exportarResultadosProvinciales y exportarResumenNacional con sus validaciones de cargo",
             "dependencies": [],
             "details": "1. Modificar el constructor de ImportExportController para inyectar ExportService junto con ImportService usando promoted properties\n2. Importar las clases necesarias: ExportService, BinaryFileResponse, Request\n3. Implementar método exportarResultadosProvinciales(int $provinciaId, Request $request): BinaryFileResponse con validación de cargo ('required|in:DIPUTADOS,SENADORES')\n4. Implementar método exportarResumenNacional(Request $request): BinaryFileResponse con la misma validación de cargo\n5. Ambos métodos deben llamar a los métodos correspondientes de ExportService y retornar BinaryFileResponse",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test unitario verificando que: (1) ExportService se inyecta correctamente en el constructor, (2) Validación de cargo rechaza valores inválidos con 422, (3) Métodos llaman a ExportService con parámetros correctos",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T13:58:52.693Z"
           },
           {
             "id": 2,
@@ -2474,9 +2515,10 @@
               1
             ],
             "details": "1. En exportarResultadosProvinciales: configurar response()->download() con:\n   - Ruta del archivo desde ExportService\n   - Nombre dinámico: \"resultados_provincia_{$provinciaId}_{$request->cargo}_\" . now()->format('Y-m-d_His') . \".csv\"\n   - Header Content-Type: 'text/csv; charset=UTF-8'\n   - Encadenar método deleteFileAfterSend()\n2. En exportarResumenNacional: configurar response()->download() con:\n   - Ruta del archivo desde ExportService\n   - Nombre dinámico: \"resumen_nacional_{$request->cargo}_\" . now()->format('Y-m-d_His') . \".csv\"\n   - Mismo header y deleteFileAfterSend()\n3. Asegurar que el directorio storage/app/exports/ existe con permisos 755",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test de feature verificando: (1) Descarga incluye header Content-Type correcto, (2) Nombre de archivo contiene timestamp en formato Y-m-d_His, (3) Archivo temporal se elimina después de la descarga, (4) Response es BinaryFileResponse válido",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T13:58:52.758Z"
           },
           {
             "id": 3,
@@ -2486,14 +2528,16 @@
               1
             ],
             "details": "1. En routes/api.php, crear grupo de rutas con Route::prefix('export')->group()\n2. Dentro del grupo definir:\n   - Route::get('provincial/{provincia}', [ImportExportController::class, 'exportarResultadosProvinciales']) con parámetro {provincia} como entero\n   - Route::get('nacional', [ImportExportController::class, 'exportarResumenNacional'])\n3. Asegurar que están dentro del grupo 'api/v1' existente si aplica\n4. URLs finales serán: GET /api/v1/export/provincial/{id}?cargo=DIPUTADOS y GET /api/v1/export/nacional?cargo=SENADORES\n5. Verificar que ImportExportController esté importado correctamente en el archivo de rutas",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test de ruta verificando: (1) GET /api/v1/export/provincial/1?cargo=DIPUTADOS retorna descarga CSV, (2) GET /api/v1/export/nacional?cargo=SENADORES retorna descarga CSV, (3) Rutas sin parámetro cargo retornan 422, (4) php artisan route:list muestra las rutas correctamente",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-12-11T13:58:52.839Z"
           }
         ],
         "complexity": 4,
         "recommendedSubtasks": 3,
-        "expansionPrompt": "Subdividir en: (1) Extensión de ImportExportController con inyección de ExportService, (2) Implementación de endpoints exportarResultadosProvinciales y exportarResumenNacional con validación de cargo, (3) Configuración de response()->download() con headers correctos, nombres dinámicos y deleteFileAfterSend, definición de rutas bajo prefijo 'export'"
+        "expansionPrompt": "Subdividir en: (1) Extensión de ImportExportController con inyección de ExportService, (2) Implementación de endpoints exportarResultadosProvinciales y exportarResumenNacional con validación de cargo, (3) Configuración de response()->download() con headers correctos, nombres dinámicos y deleteFileAfterSend, definición de rutas bajo prefijo 'export'",
+        "updatedAt": "2025-12-11T13:58:52.839Z"
       },
       {
         "id": "34",
@@ -2731,9 +2775,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-12-11T01:41:27.956Z",
+      "lastModified": "2025-12-11T18:38:25.550Z",
       "taskCount": 37,
-      "completedCount": 25,
+      "completedCount": 32,
       "tags": [
         "master"
       ]

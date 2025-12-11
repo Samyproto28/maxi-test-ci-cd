@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Lista extends Model
+class Lista extends Model implements Auditable
 {
-    use HasFactory;
+    use HasFactory, \OwenIt\Auditing\Auditable;
     // Constantes para valores ENUM
     public const CARGO_DIPUTADOS = 'DIPUTADOS';
     public const CARGO_SENADORES = 'SENADORES';

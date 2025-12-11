@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Telegrama extends Model
+class Telegrama extends Model implements Auditable
 {
-    use HasFactory;
+    use HasFactory, \OwenIt\Auditing\Auditable;
     protected $table = 'telegramas';
 
     protected $fillable = [
@@ -20,6 +21,7 @@ class Telegrama extends Model
         'nulos',
         'recurridos',
         'usuario',
+        'user_id',
     ];
 
     protected $casts = [

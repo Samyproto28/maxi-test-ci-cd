@@ -35,7 +35,7 @@ class StoreCandidatoRequest extends FormRequest
                 'integer',
                 'min:1',
                 Rule::unique('candidatos')->where(function ($query) {
-                    return $query->where('lista_id', $this->lista_id);
+                    return $query->where('lista_id', $this->input('lista_id'));
                 })
             ],
             'observaciones' => 'nullable|string',
@@ -48,10 +48,10 @@ class StoreCandidatoRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function ($validator) {
-            if ($this->lista_id) {
-                $lista = Lista::find($this->lista_id);
+            if ($this->input('lista_id')) {
+                $lista = Lista::find($this->input('lista_id'));
 
-                if ($lista && $this->cargo !== $lista->cargo) {
+                if ($lista && $this->input('cargo') !== $lista->cargo) {
                     $validator->errors()->add(
                         'cargo',
                         'El cargo del candidato debe coincidir con el cargo de la lista seleccionada.'
