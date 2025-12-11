@@ -28,11 +28,12 @@ class UpdateCandidatoRequest extends FormRequest
         $candidatoId = $this->route('candidato');
 
         return [
-            'nombre' => 'required|string|max:150',
-            'lista_id' => 'required|exists:listas,id',
-            'provincia_id' => 'required|exists:provincias,id',
-            'cargo' => ['required', Rule::in(Candidato::CARGOS)],
+            'nombre' => 'sometimes|required|string|max:150',
+            'lista_id' => 'sometimes|required|exists:listas,id',
+            'provincia_id' => 'sometimes|required|exists:provincias,id',
+            'cargo' => ['sometimes', 'required', Rule::in(Candidato::CARGOS)],
             'orden' => [
+                'sometimes',
                 'required',
                 'integer',
                 'min:1',

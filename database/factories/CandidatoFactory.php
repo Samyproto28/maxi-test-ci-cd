@@ -22,11 +22,11 @@ class CandidatoFactory extends Factory
     public function definition(): array
     {
         return [
-            'nombre' => fake()->name(),
+            'nombre' => fake()->unique()->name(),
             'lista_id' => Lista::factory(),
             'provincia_id' => Provincia::factory(),
             'cargo' => fake()->randomElement(Candidato::CARGOS),
-            'orden' => fake()->numberBetween(1, 10),
+            'orden' => fake()->unique()->numberBetween(1, 1000),
             'observaciones' => fake()->optional()->sentence(),
         ];
     }

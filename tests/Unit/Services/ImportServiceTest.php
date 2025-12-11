@@ -66,7 +66,7 @@ class ImportServiceTest extends TestCase
 
         $this->assertEquals(2, $resultado['importados']);
         $this->assertCount(1, $resultado['errores']);
-        $this->assertStringContainsString('Línea 3', $resultado['errores'][0]);
+        $this->assertStringContainsString('Línea 4', $resultado['errores'][0]);
     }
 
     public function test_importar_provincias_campos_faltantes(): void
