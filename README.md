@@ -7,6 +7,60 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Sistema de Gestión Electoral Argentina 2025
+
+Sistema backend para la gestión de elecciones argentinas 2025, desarrollado con Laravel 11.
+
+### Características
+
+- Gestión de provincias, listas electorales y candidatos
+- Registro de mesas electorales y telegramas de resultados
+- Sistema completo de auditoría de operaciones
+- Base de datos optimizada con índices compuestos
+- Integridad referencial con foreign keys y constraints
+
+## Estructura de Base de Datos
+
+El sistema cuenta con 6 tablas principales:
+
+- **provincias**: Provincias argentinas donde se realizan elecciones
+- **listas**: Listas electorales por provincia y cargo
+- **candidatos**: Candidatos de cada lista electoral
+- **mesas**: Mesas electorales donde se emiten votos
+- **telegramas**: Resultados electorales por mesa y lista
+- **auditoria**: Registro de todas las operaciones del sistema
+
+### Documentación de Base de Datos
+
+- [**Diagrama ER**](docs/database/ER_DIAGRAM.md) - Diagrama entidad-relación con Mermaid
+- [**Schema Completo**](docs/database/SCHEMA.md) - DDL completo y reglas de negocio
+
+### Verificación del Schema
+
+Todas las migraciones han sido verificadas:
+
+✅ **Tablas**: 6 tablas personalizadas + tablas Laravel
+✅ **Foreign Keys**: 6 relaciones con ON DELETE (CASCADE/RESTRICT)
+✅ **Índices**: 5 índices únicos compuestos + índices de optimización
+✅ **Constraints**: Validación de integridad referencial
+✅ **Rollback**: Migraciones completamente reversibles
+
+```bash
+# Ejecutar migraciones
+php artisan migrate
+
+# Verificar estado
+php artisan migrate:status
+
+# Ver estructura de tablas
+php artisan db:table provincias
+php artisan db:table listas
+php artisan db:table candidatos
+php artisan db:table mesas
+php artisan db:table telegramas
+php artisan db:table auditoria
+```
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
