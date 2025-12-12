@@ -46,14 +46,15 @@ class ResultadoCalculationService
 
         $resultados = DB::table('telegramas')
             ->join('mesas', 'telegramas.mesa_id', '=', 'mesas.id')
-            ->join('listas', 'telegramas.lista_id', '=', 'listas.id')
+            ->join('telegrama_votos', 'telegramas.id', '=', 'telegrama_votos.telegrama_id')
+            ->join('listas', 'telegrama_votos.lista_id', '=', 'listas.id')
             ->where('mesas.provincia_id', $provinciaId)
             ->where('listas.cargo', $cargo)
             ->select(
                 'listas.id as lista_id',
                 'listas.nombre as lista_nombre',
                 'listas.alianza as lista_alianza',
-                DB::raw("SUM({$votoColumn}) as total_votos")
+                DB::raw("SUM(telegrama_votos.{$votoColumn}) as total_votos")
             )
             ->groupBy('listas.id', 'listas.nombre', 'listas.alianza')
             ->orderByDesc('total_votos')
@@ -130,12 +131,13 @@ class ResultadoCalculationService
         $votoColumn = $this->obtenerColumnaVotos($cargo);
 
         $resultados = DB::table('telegramas')
-            ->join('listas', 'telegramas.lista_id', '=', 'listas.id')
+            ->join('telegrama_votos', 'telegramas.id', '=', 'telegrama_votos.telegrama_id')
+            ->join('listas', 'telegrama_votos.lista_id', '=', 'listas.id')
             ->where('listas.cargo', $cargo)
             ->select(
                 'listas.nombre as lista_nombre',
                 'listas.alianza as lista_alianza',
-                DB::raw("SUM({$votoColumn}) as total_votos")
+                DB::raw("SUM(telegrama_votos.{$votoColumn}) as total_votos")
             )
             ->groupBy('listas.nombre', 'listas.alianza')
             ->orderByDesc('total_votos')
@@ -243,7 +245,7 @@ class ResultadoCalculationService
     {
         $votoColumn = $this->obtenerColumnaVotos($cargo);
 
-        return (int) DB::table('telegramas')
+        return (int) DB::table('telegrama_votos')
             ->where('lista_id', $listaId)
             ->sum($votoColumn);
     }

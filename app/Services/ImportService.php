@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use League\Csv\Reader;
-use App\Models\{Provincia, Lista, Candidato, Mesa, Telegrama};
+use App\Models\{Provincia, Lista, Candidato, Mesa, Telegrama, TelegramaVoto};
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -498,41 +498,40 @@ class ImportService
                     $this->validarRelacionExiste(Mesa::class, $record['mesa_id'], 'mesa_id', $lineNumber);
                     $this->validarRelacionExiste(Lista::class, $record['lista_id'], 'lista_id', $lineNumber);
 
-                    // Validar duplicados
-                    $existente = Telegrama::where('mesa_id', $record['mesa_id'])
+                    // Buscar o crear telegrama para esta mesa
+                    $telegrama = Telegrama::firstOrCreate(
+                        ['mesa_id' => (int) $record['mesa_id']],
+                        [
+                            'blancos' => (int) ($record['blancos'] ?? 0),
+                            'nulos' => (int) ($record['nulos'] ?? 0),
+                            'recurridos' => (int) ($record['recurridos'] ?? 0),
+                            'usuario' => $usuario ?? 'import',
+                        ]
+                    );
+
+                    // Validar duplicados de votos por lista
+                    $existeVoto = TelegramaVoto::where('telegrama_id', $telegrama->id)
                         ->where('lista_id', $record['lista_id'])
                         ->exists();
 
-                    if ($existente) {
-                        throw new \InvalidArgumentException("Ya existe un telegrama para la mesa {$record['mesa_id']} y lista {$record['lista_id']}");
+                    if ($existeVoto) {
+                        throw new \InvalidArgumentException("Ya existen votos para la lista {$record['lista_id']} en este telegrama");
                     }
 
                     $datosVotos = [
                         'votos_diputados' => (int) ($record['votos_diputados'] ?? 0),
                         'votos_senadores' => (int) ($record['votos_senadores'] ?? 0),
-                        'blancos' => (int) ($record['blancos'] ?? 0),
-                        'nulos' => (int) ($record['nulos'] ?? 0),
-                        'recurridos' => (int) ($record['recurridos'] ?? 0),
                     ];
 
                     // Validar votos no negativos
                     $this->telegramaValidationService->validarVotosNoNegativos($datosVotos);
 
-                    // Validar suma de votos no excede electores
-                    $this->telegramaValidationService->validarSumaVotosNoExcedeElectores(
-                        (int) $record['mesa_id'],
-                        $datosVotos
-                    );
-
-                    Telegrama::create([
-                        'mesa_id' => (int) $record['mesa_id'],
+                    // Crear voto por lista
+                    TelegramaVoto::create([
+                        'telegrama_id' => $telegrama->id,
                         'lista_id' => (int) $record['lista_id'],
                         'votos_diputados' => $datosVotos['votos_diputados'],
                         'votos_senadores' => $datosVotos['votos_senadores'],
-                        'blancos' => $datosVotos['blancos'],
-                        'nulos' => $datosVotos['nulos'],
-                        'recurridos' => $datosVotos['recurridos'],
-                        'usuario' => $usuario,
                     ]);
                     $importados++;
                 } catch (\Exception $e) {
@@ -571,41 +570,40 @@ class ImportService
                         $this->validarRelacionExiste(Mesa::class, $record['mesa_id'], 'mesa_id', $lineNumber);
                         $this->validarRelacionExiste(Lista::class, $record['lista_id'], 'lista_id', $lineNumber);
 
-                        // Validar duplicados
-                        $existente = Telegrama::where('mesa_id', $record['mesa_id'])
+                        // Buscar o crear telegrama para esta mesa
+                        $telegrama = Telegrama::firstOrCreate(
+                            ['mesa_id' => (int) $record['mesa_id']],
+                            [
+                                'blancos' => (int) ($record['blancos'] ?? 0),
+                                'nulos' => (int) ($record['nulos'] ?? 0),
+                                'recurridos' => (int) ($record['recurridos'] ?? 0),
+                                'usuario' => $usuario ?? 'import',
+                            ]
+                        );
+
+                        // Validar duplicados de votos por lista
+                        $existeVoto = TelegramaVoto::where('telegrama_id', $telegrama->id)
                             ->where('lista_id', $record['lista_id'])
                             ->exists();
 
-                        if ($existente) {
-                            throw new \InvalidArgumentException("Ya existe un telegrama para la mesa {$record['mesa_id']} y lista {$record['lista_id']}");
+                        if ($existeVoto) {
+                            throw new \InvalidArgumentException("Ya existen votos para la lista {$record['lista_id']} en este telegrama");
                         }
 
                         $datosVotos = [
                             'votos_diputados' => (int) ($record['votos_diputados'] ?? 0),
                             'votos_senadores' => (int) ($record['votos_senadores'] ?? 0),
-                            'blancos' => (int) ($record['blancos'] ?? 0),
-                            'nulos' => (int) ($record['nulos'] ?? 0),
-                            'recurridos' => (int) ($record['recurridos'] ?? 0),
                         ];
 
                         // Validar votos no negativos
                         $this->telegramaValidationService->validarVotosNoNegativos($datosVotos);
 
-                        // Validar suma de votos no excede electores
-                        $this->telegramaValidationService->validarSumaVotosNoExcedeElectores(
-                            (int) $record['mesa_id'],
-                            $datosVotos
-                        );
-
-                        Telegrama::create([
-                            'mesa_id' => (int) $record['mesa_id'],
+                        // Crear voto por lista
+                        TelegramaVoto::create([
+                            'telegrama_id' => $telegrama->id,
                             'lista_id' => (int) $record['lista_id'],
                             'votos_diputados' => $datosVotos['votos_diputados'],
                             'votos_senadores' => $datosVotos['votos_senadores'],
-                            'blancos' => $datosVotos['blancos'],
-                            'nulos' => $datosVotos['nulos'],
-                            'recurridos' => $datosVotos['recurridos'],
-                            'usuario' => $usuario,
                         ]);
                         $importados++;
                     } catch (\Exception $e) {

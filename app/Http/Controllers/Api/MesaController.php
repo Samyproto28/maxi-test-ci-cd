@@ -44,7 +44,7 @@ class MesaController extends Controller
      */
     public function show(Mesa $mesa): JsonResponse
     {
-        $mesa->load(['provincia', 'telegramas.lista']);
+        $mesa->load(['provincia', 'telegramas.votos.lista']);
 
         return response()->json($mesa);
     }

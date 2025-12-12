@@ -40,10 +40,10 @@ class Mesa extends Model
     // Método helper para obtener total de votos cargados
     public function totalVotosCargados(): int
     {
-        return $this->telegramas()->sum('votos_diputados') +
-               $this->telegramas()->sum('votos_senadores') +
-               $this->telegramas()->sum('blancos') +
-               $this->telegramas()->sum('nulos') +
-               $this->telegramas()->sum('recurridos');
+        $telegrama = $this->telegramas()->first();
+        if (!$telegrama) {
+            return 0;
+        }
+        return $telegrama->totalVotos();
     }
 }

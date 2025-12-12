@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class Telegrama extends Model implements Auditable
@@ -14,9 +15,6 @@ class Telegrama extends Model implements Auditable
 
     protected $fillable = [
         'mesa_id',
-        'lista_id',
-        'votos_diputados',
-        'votos_senadores',
         'blancos',
         'nulos',
         'recurridos',
@@ -25,8 +23,6 @@ class Telegrama extends Model implements Auditable
     ];
 
     protected $casts = [
-        'votos_diputados' => 'integer',
-        'votos_senadores' => 'integer',
         'blancos' => 'integer',
         'nulos' => 'integer',
         'recurridos' => 'integer',
@@ -35,7 +31,7 @@ class Telegrama extends Model implements Auditable
     ];
 
     /**
-     * Relación con la mesa electoral
+     * Relacion con la mesa electoral
      */
     public function mesa(): BelongsTo
     {
@@ -43,19 +39,35 @@ class Telegrama extends Model implements Auditable
     }
 
     /**
-     * Relación con la lista electoral
+     * Relacion con los votos por lista
      */
-    public function lista(): BelongsTo
+    public function votos(): HasMany
     {
-        return $this->belongsTo(Lista::class);
+        return $this->hasMany(TelegramaVoto::class);
     }
 
     /**
-     * Calcula el total de votos del telegrama
+     * Calcula el total de votos del telegrama (suma de todas las listas + blancos/nulos/recurridos)
      */
     public function totalVotos(): int
     {
-        return $this->votos_diputados + $this->votos_senadores +
-               $this->blancos + $this->nulos + $this->recurridos;
+        $votosListas = $this->votos()->sum('votos_diputados') + $this->votos()->sum('votos_senadores');
+        return $votosListas + $this->blancos + $this->nulos + $this->recurridos;
+    }
+
+    /**
+     * Calcula total de votos de diputados
+     */
+    public function totalVotosDiputados(): int
+    {
+        return $this->votos()->sum('votos_diputados');
+    }
+
+    /**
+     * Calcula total de votos de senadores
+     */
+    public function totalVotosSenadores(): int
+    {
+        return $this->votos()->sum('votos_senadores');
     }
 }

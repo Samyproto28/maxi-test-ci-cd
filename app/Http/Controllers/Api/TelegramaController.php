@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\{StoreTelegramaRequest, UpdateTelegramaRequest};
-use App\Models\{Telegrama, Mesa};
+use App\Models\{Telegrama, TelegramaVoto, Mesa};
 use App\Services\TelegramaValidationService;
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\DB;
@@ -17,6 +17,7 @@ class TelegramaController extends Controller
 
     /**
      * Store a newly created telegrama in storage.
+     * Nueva estructura: recibe array de votos por lista
      */
     public function store(StoreTelegramaRequest $request): JsonResponse
     {
@@ -24,24 +25,42 @@ class TelegramaController extends Controller
             $telegrama = DB::transaction(function () use ($request) {
                 $validated = $request->validated();
 
-                // Create telegrama
-                $telegrama = Telegrama::create($validated);
+                // Crear telegrama (sin votos por lista)
+                $telegrama = Telegrama::create([
+                    'mesa_id' => $validated['mesa_id'],
+                    'blancos' => $validated['blancos'],
+                    'nulos' => $validated['nulos'],
+                    'recurridos' => $validated['recurridos'],
+                    'usuario' => $validated['usuario'],
+                ]);
+
+                // Crear votos por lista en tabla telegrama_votos
+                foreach ($validated['votos'] as $voto) {
+                    TelegramaVoto::create([
+                        'telegrama_id' => $telegrama->id,
+                        'lista_id' => $voto['lista_id'],
+                        'votos_diputados' => $voto['votos_diputados'],
+                        'votos_senadores' => $voto['votos_senadores'],
+                    ]);
+                }
 
                 // Log audit
                 $this->registrarAuditoria(
                     'CREATE',
                     $telegrama->id,
                     null,
-                    $telegrama->toArray(),
+                    array_merge($telegrama->toArray(), ['votos' => $validated['votos']]),
                     $validated['usuario']
                 );
 
                 return $telegrama;
             });
 
-            $telegrama->load(['mesa', 'lista']);
+            $telegrama->load(['mesa', 'votos.lista']);
 
-            return response()->json($telegrama, 201);
+            return response()->json([
+                'data' => $telegrama
+            ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -56,9 +75,8 @@ class TelegramaController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $telegramas = Telegrama::with(['mesa', 'lista'])
+        $telegramas = Telegrama::with(['mesa', 'votos.lista'])
             ->when($request->mesa_id, fn($q) => $q->where('mesa_id', $request->mesa_id))
-            ->when($request->lista_id, fn($q) => $q->where('lista_id', $request->lista_id))
             ->orderBy('created_at', 'desc')
             ->paginate($request->per_page ?? 15);
 
@@ -70,8 +88,10 @@ class TelegramaController extends Controller
      */
     public function show(Telegrama $telegrama): JsonResponse
     {
-        $telegrama->load(['mesa', 'lista']);
-        return response()->json($telegrama);
+        $telegrama->load(['mesa', 'votos.lista']);
+        return response()->json([
+            'data' => $telegrama
+        ]);
     }
 
     /**
@@ -82,26 +102,48 @@ class TelegramaController extends Controller
         try {
             $updated = DB::transaction(function () use ($request, $telegrama) {
                 $validated = $request->validated();
-                $datosAnteriores = $telegrama->toArray();
+                $datosAnteriores = array_merge($telegrama->toArray(), ['votos' => $telegrama->votos->toArray()]);
 
-                // Update telegrama
-                $telegrama->update($validated);
+                // Update telegrama base data
+                $telegrama->update([
+                    'blancos' => $validated['blancos'] ?? $telegrama->blancos,
+                    'nulos' => $validated['nulos'] ?? $telegrama->nulos,
+                    'recurridos' => $validated['recurridos'] ?? $telegrama->recurridos,
+                    'usuario' => $validated['usuario'],
+                ]);
+
+                // Update votos por lista si se enviaron
+                if (isset($validated['votos']) && is_array($validated['votos'])) {
+                    // Eliminar votos existentes y crear nuevos
+                    $telegrama->votos()->delete();
+                    
+                    foreach ($validated['votos'] as $voto) {
+                        TelegramaVoto::create([
+                            'telegrama_id' => $telegrama->id,
+                            'lista_id' => $voto['lista_id'],
+                            'votos_diputados' => $voto['votos_diputados'],
+                            'votos_senadores' => $voto['votos_senadores'],
+                        ]);
+                    }
+                }
 
                 // Log audit
                 $this->registrarAuditoria(
                     'UPDATE',
                     $telegrama->id,
                     $datosAnteriores,
-                    $telegrama->fresh()->toArray(),
+                    array_merge($telegrama->fresh()->toArray(), ['votos' => $validated['votos'] ?? []]),
                     $validated['usuario']
                 );
 
                 return $telegrama;
             });
 
-            $updated->load(['mesa', 'lista']);
+            $updated->load(['mesa', 'votos.lista']);
 
-            return response()->json($updated);
+            return response()->json([
+                'data' => $updated
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -144,16 +186,24 @@ class TelegramaController extends Controller
     }
 
     /**
-     * Get all telegramas for a specific mesa.
+     * Get telegrama for a specific mesa (solo puede haber uno por mesa).
      */
     public function telegramasByMesa(Request $request, Mesa $mesa): JsonResponse
     {
-        $telegramas = $mesa->telegramas()
-            ->with('lista')
-            ->orderBy('created_at', 'desc')
-            ->paginate($request->per_page ?? 15);
+        $telegrama = $mesa->telegramas()
+            ->with('votos.lista')
+            ->first();
 
-        return response()->json($telegramas);
+        if (!$telegrama) {
+            return response()->json([
+                'data' => null,
+                'message' => 'No hay telegrama cargado para esta mesa'
+            ]);
+        }
+
+        return response()->json([
+            'data' => $telegrama
+        ]);
     }
 
     /**
