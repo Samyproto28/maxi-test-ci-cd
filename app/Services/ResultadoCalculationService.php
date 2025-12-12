@@ -15,6 +15,42 @@ class ResultadoCalculationService
 {
     private const CACHE_TTL_MINUTES = 10;
 
+    private DhondtCalculator $dhondtCalculator;
+
+    // Configuración de bancas por provincia para Diputados
+    private array $bancasPorProvincia = [
+        1 => 70,  // Buenos Aires
+        2 => 13,  // CABA
+        3 => 12,  // Córdoba
+        4 => 19,  // Santa Fe
+        5 => 11,  // Mendoza
+        6 => 9,   // Tucumán
+        7 => 9,   // Entre Ríos
+        8 => 8,   // Salta
+        9 => 8,   // Corrientes
+        10 => 7,  // Chaco
+        11 => 7,  // San Juan
+        12 => 7,  // Río Negro
+        13 => 7,  // Misiones
+        14 => 6,  // Neuquén
+        15 => 6,  // Formosa
+        16 => 6,  // Chubut
+        17 => 6,  // San Luis
+        18 => 5,  // Catamarca
+        19 => 5,  // La Rioja
+        20 => 5,  // Santa Cruz
+        21 => 5,  // Tierra del Fuego
+        22 => 4,  // Jujuy
+        23 => 4,  // La Pampa
+        24 => 4,  // Santiago del Estero
+        25 => 4,  // Tucumán (ya definido arriba, duplicado)
+    ];
+
+    public function __construct(DhondtCalculator $dhondtCalculator)
+    {
+        $this->dhondtCalculator = $dhondtCalculator;
+    }
+
     /**
      * Calculate electoral results for a specific province and cargo
      *
@@ -62,13 +98,17 @@ class ResultadoCalculationService
 
         $totalVotosValidos = $resultados->sum('total_votos');
 
-        $listas = $resultados->map(function ($item) use ($totalVotosValidos) {
+        // Calcular bancas para Diputados
+        $listasConBancas = $this->calcularBancasParaListas($resultados, $cargo, $provinciaId);
+
+        $listas = collect($listasConBancas)->map(function ($item) use ($totalVotosValidos) {
             return [
                 'id' => $item->lista_id,
                 'nombre' => $item->lista_nombre,
                 'alianza' => $item->lista_alianza,
                 'votos' => (int) $item->total_votos,
-                'porcentaje' => $this->calcularPorcentaje($item->total_votos, $totalVotosValidos)
+                'porcentaje' => $this->calcularPorcentaje($item->total_votos, $totalVotosValidos),
+                'bancas' => $item->bancas ?? 0
             ];
         })->values()->toArray();
 
@@ -78,6 +118,57 @@ class ResultadoCalculationService
             'listas' => $listas,
             'total_votos_validos' => $totalVotosValidos
         ];
+    }
+
+    /**
+     * Calcular bancas para las listas usando D'Hondt
+     *
+     * @param Collection $resultados
+     * @param string $cargo
+     * @param int $provinciaId
+     * @return array
+     */
+    private function calcularBancasParaListas($resultados, string $cargo, int $provinciaId): array
+    {
+        // Solo calcular bancas para Diputados
+        if ($cargo !== 'DIPUTADOS') {
+            return $resultados->toArray();
+        }
+
+        // Obtener total de bancas para la provincia
+        $totalBancas = $this->obtenerTotalBancas($provinciaId);
+
+        if ($totalBancas === 0) {
+            return $resultados->toArray();
+        }
+
+        // Preparar datos para D'Hondt
+        $votosPorLista = [];
+        foreach ($resultados as $item) {
+            $votosPorLista[$item->lista_id] = (int) $item->total_votos;
+        }
+
+        // Calcular bancas
+        $bancasAsignadas = $this->dhondtCalculator->calcularBancas($votosPorLista, $totalBancas);
+
+        // Agregar bancas a los resultados
+        $resultadosArray = $resultados->toArray();
+        foreach ($resultadosArray as &$item) {
+            $item->bancas = $bancasAsignadas[$item->lista_id] ?? 0;
+        }
+
+        return $resultadosArray;
+    }
+
+    /**
+     * Obtener total de bancas para una provincia
+     *
+     * @param int $provinciaId
+     * @return int
+     */
+    private function obtenerTotalBancas(int $provinciaId): int
+    {
+        return $this->bancasPorProvincia[$provinciaId] ?? 0;
     }
 
     /**

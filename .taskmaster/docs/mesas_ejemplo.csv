@@ -1,0 +1,46 @@
+id_mesa,provincia_id,circuito,establecimiento,electores
+1,1,A001,Escuela Primaria N°1,350
+2,1,A002,Escuela Primaria N°2,320
+3,1,A003,Escuela Primaria N°3,380
+4,1,A004,Escuela Primaria N°4,295
+5,1,A005,Escuela Primaria N°5,410
+6,1,A006,Escuela Primaria N°6,330
+7,1,A007,Escuela Primaria N°7,365
+8,1,A008,Escuela Primaria N°8,340
+9,1,A009,Escuela Primaria N°9,355
+10,1,A010,Escuela Primaria N°10,325
+11,1,A011,Escuela Primaria N°11,390
+12,1,A012,Escuela Primaria N°12,305
+13,1,A013,Escuela Primaria N°13,375
+14,1,A014,Escuela Primaria N°14,315
+15,1,A015,Escuela Primaria N°15,345
+16,2,B001,Colegio Nacional,400
+17,2,B002,Colegio Nacional,385
+18,2,B003,Colegio Nacional,420
+19,2,B004,Colegio Nacional,395
+20,2,B005,Colegio Nacional,410
+21,2,B006,Colegio Nacional,375
+22,2,B007,Colegio Nacional,405
+23,2,B008,Colegio Nacional,390
+24,2,B009,Colegio Nacional,415
+25,2,B010,Colegio Nacional,380
+26,2,B011,Colegio Nacional,425
+27,2,B012,Colegio Nacional,370
+28,2,B013,Colegio Nacional,435
+29,2,B014,Colegio Nacional,360
+30,2,B015,Colegio Nacional,445
+31,3,C001,Escuela Provincial N°1,330
+32,3,C002,Escuela Provincial N°2,315
+33,3,C003,Escuela Provincial N°3,340
+34,3,C004,Escuela Provincial N°4,325
+35,3,C005,Escuela Provincial N°5,350
+36,3,C006,Escuela Provincial N°6,335
+37,3,C007,Escuela Provincial N°7,360
+38,3,C008,Escuela Provincial N°8,345
+39,3,C009,Escuela Provincial N°9,370
+40,3,C010,Escuela Provincial N°10,355
+41,3,C011,Escuela Provincial N°11,380
+42,3,C012,Escuela Provincial N°12,365
+43,3,C013,Escuela Provincial N°13,390
+44,3,C014,Escuela Provincial N°14,375
+45,3,C015,Escuela Provincial N°15,400
